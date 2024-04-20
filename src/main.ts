@@ -1,10 +1,11 @@
 import { Client } from "discordx";
+import { Events } from "discord.js";
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "GuildMembers"],
   silent: false,
 });
 
-client.on("ready", async () => {
+client.on(Events.ClientReady, async () => {
   console.log(">> Bot started");
 
   // Fetch all guilds
@@ -16,7 +17,7 @@ client.on("ready", async () => {
 
 let lastPing = Date.now();
 
-client.on("messageCreate", async (message) => {
+client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
 
   if (message.content === "!ping") {
