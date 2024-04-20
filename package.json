@@ -1,0 +1,42 @@
+{
+  "name": "bonkbot",
+  "version": "1.0.0",
+  "description": "bonkybonk",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node dist/build.js",
+    "test": "test",
+    "bundle:server": "webpack",
+    "watch-compile:server": "tsc --watch",
+    "watch-bundle:server": "webpack --watch",
+    "concurrent-watch": "concurrently npm:watch-*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d2dynamo/BonkBot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Heko",
+  "type": "module",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d2dynamo/BonkBot/issues"
+  },
+  "homepage": "https://github.com/d2dynamo/BonkBot#readme",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "eslint": "^9.1.0",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.5",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "discordx": "^11.9.2"
+  }
+}
