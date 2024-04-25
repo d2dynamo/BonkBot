@@ -1,7 +1,11 @@
 import { Client } from "discordx";
 import { Events } from "discord.js";
+import "dotenv/config";
+
+import EventHandler from "./handlers";
+
 const client = new Client({
-  intents: ["Guilds", "GuildMessages", "GuildMembers"],
+  intents: ["Guilds", "GuildMessages", "GuildMembers", "MessageContent"],
   silent: false,
 });
 
@@ -15,21 +19,8 @@ client.on(Events.ClientReady, async () => {
   await client.initApplicationCommands();
 });
 
-let lastPing = Date.now();
-
-client.on(Events.MessageCreate, async (message) => {
-  if (message.author.bot) return;
-
-  if (message.content === "!ping") {
-    const now = Date.now();
-
-    if (now - lastPing > 5000) {
-      return;
-    }
-
-    message.reply(`Pong!`);
-    lastPing = now;
-  }
-});
+client.on(Events.MessageCreate, async (message) =>
+  EventHandler.messageCreate(message)
+);
 
 client.login(process.env.DBOT_TOKEN);

@@ -83,7 +83,10 @@
   },
   "include": ["src/**/*"],
   "ts-node": {
-    "transpileOnly": true
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   },
   "exclude": ["node_modules", "build.js"]
 }
