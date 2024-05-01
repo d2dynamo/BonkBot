@@ -23,4 +23,11 @@ client.on(Events.MessageCreate, async (message) =>
   EventHandler.messageCreate(message)
 );
 
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+  console.log(">> Interaction", interaction);
+
+  EventHandler.slashCommand(interaction);
+});
+
 client.login(process.env.DBOT_TOKEN);

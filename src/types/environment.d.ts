@@ -9,6 +9,7 @@ declare global {
       HTTPS_CERT_PATH: string;
 
       DBOT_TOKEN: string;
+      DBOT_APP_ID: string;
     }
   }
 }

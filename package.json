@@ -36,7 +36,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.12.1",
     "discordx": "^11.9.2",
     "dotenv": "^16.4.5"
   }
