@@ -6,7 +6,6 @@ import { SaveBonkDebt, LoadBonkDebtWallets } from "../modules/BonkDebt";
   Save debt for a specified user. Only certain users can run this command.
 */
 let debtWallets: BonkDebtWallet[] = [];
-let lastUpdatedWallets = Date.now();
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-add")
@@ -43,7 +42,6 @@ export default {
     }
 
     debtWallets = LoadBonkDebtWallets();
-    lastUpdatedWallets = Date.now();
 
     const userWalletIndex = debtWallets.findIndex(
       (wallet) => wallet.userId === user.id

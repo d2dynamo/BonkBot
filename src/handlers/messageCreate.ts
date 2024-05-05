@@ -74,7 +74,7 @@ export default async (message: Message) => {
         lastUpdated: Date.now(),
       });
     }
-    console.log("saving wallets", wallets);
+
     SaveBonkDebt(wallets);
 
     //message.react(emoji);

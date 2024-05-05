@@ -6,7 +6,6 @@ import { LoadBonkDebtWallets, SaveBonkDebt } from "../modules/BonkDebt";
 
 */
 let debtWallets: BonkDebtWallet[] = [];
-let lastUpdatedWallets = Date.now();
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-set")
@@ -45,7 +44,6 @@ export default {
     }
 
     debtWallets = LoadBonkDebtWallets();
-    lastUpdatedWallets = Date.now();
 
     const userWalletIndex = debtWallets.findIndex(
       (wallet) => wallet.userId === user.id

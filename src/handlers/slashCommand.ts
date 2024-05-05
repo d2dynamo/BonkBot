@@ -3,7 +3,6 @@ import { CommandInteraction } from "discord.js";
 import Commands from "../commands";
 
 export default async (interaction: CommandInteraction) => {
-  console.log(">> Slash command", interaction);
   const commandName = interaction.commandName;
 
   const command = Commands.find((command) => command.data.name === commandName);
@@ -14,6 +13,5 @@ export default async (interaction: CommandInteraction) => {
     return;
   }
 
-  console.log(">> Executing command", commandName);
   command.execute(interaction);
 };

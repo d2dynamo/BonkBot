@@ -7,15 +7,9 @@ export default async function () {
   const rest = new REST({ version: "10" }).setToken(process.env.DBOT_TOKEN);
 
   try {
-    console.log("Started refreshing application (/) commands.");
-    const result = await rest.put(
-      Routes.applicationCommands(process.env.DBOT_APP_ID),
-      {
-        body: commands,
-      }
-    );
-
-    console.log("result", result);
+    await rest.put(Routes.applicationCommands(process.env.DBOT_APP_ID), {
+      body: commands,
+    });
   } catch (error: any) {
     console.log(error);
   }
