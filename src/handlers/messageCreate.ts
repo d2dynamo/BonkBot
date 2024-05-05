@@ -51,10 +51,10 @@ export default async (message: Message) => {
 
     //const emoji: EmojiResolvable = emojis.BONK;
 
-    const gamerWord = matchedGamerWords[0];
+    const firstGamerWord = matchedGamerWords[0];
     message.reply(
       `${
-        gamerWord.response ?? GamerWordDefaultResponse
+        firstGamerWord.response ?? GamerWordDefaultResponse
       }. Nu krediteras du för ${totalCost} poäng.`
     );
 

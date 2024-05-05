@@ -1,8 +1,4 @@
-import {
-  SlashCommandBuilder,
-  Interaction,
-  CommandInteraction,
-} from "discord.js";
+import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 import { BonkDebtWallet } from "../interfaces/database";
 import { LoadBonkDebtWallets } from "../modules/BonkDebt";
 
@@ -10,34 +6,33 @@ import { LoadBonkDebtWallets } from "../modules/BonkDebt";
   Save debt for a specified user. Only certain users can run this command.
 */
 let debtWallets: BonkDebtWallet[] = [];
-let lastUpdatedWallets = Date.now();
-export const data = new SlashCommandBuilder()
-  .setName("db-load")
-  .setDescription("Load debt for a user")
-  .addUserOption((option) =>
-    option
-      .setName("user")
-      .setDescription("The user to load debt for")
-      .setRequired(true)
-  );
+export default {
+  data: new SlashCommandBuilder()
+    .setName("bd-load")
+    .setDescription("Load debt for a user")
+    .addUserOption((option) =>
+      option
+        .setName("user")
+        .setDescription("The user to load debt for")
+        .setRequired(true)
+    ),
+  execute(interaction: CommandInteraction) {
+    const user = interaction.options.getUser("user");
+    if (!user) {
+      interaction.reply("No user specified");
+      return;
+    }
 
-export async function execute(interaction: CommandInteraction) {
-  const user = interaction.options.getUser("user");
-  if (!user) {
-    interaction.reply("No user specified");
-    return;
-  }
-
-  if (Date.now() - lastUpdatedWallets > 60000) {
     debtWallets = LoadBonkDebtWallets();
-    lastUpdatedWallets = Date.now();
-  }
 
-  const userWallet = debtWallets.find((wallet) => wallet.userId === user.id);
-  if (!userWallet || userWallet.balance === 0) {
-    interaction.reply(`${user.username} has no debt`);
-    return;
-  }
+    const userWallet = debtWallets.find((wallet) => wallet.userId === user.id);
+    if (!userWallet || userWallet.balance === 0) {
+      interaction.reply(`${user.username} has no debt`);
+      return;
+    }
 
-  interaction.reply(`Loading debt for ${user.username}`);
-}
+    interaction.reply(
+      `${user.username} is in debt by ${userWallet.balance} credits`
+    );
+  },
+};

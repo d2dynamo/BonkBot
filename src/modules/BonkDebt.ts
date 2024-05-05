@@ -26,5 +26,5 @@ export function LoadBonkDebtWallets(): BonkDebtWallet[] {
 }
 
 export function SaveBonkDebt(data: BonkDebtWallet[]) {
-  fs.writeFileSync("c:/bonkdebt.json", JSON.stringify(data));
+  fs.writeFileSync("d:/bonkdebt.json", JSON.stringify(data));
 }

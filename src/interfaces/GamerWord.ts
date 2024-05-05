@@ -19,14 +19,4 @@ export default class {
       this.cost = 5;
     }
   }
-  public function CheckMessageForMatch(input: string[]) {
-    for (let i = 0; i < input.length; i++) {
-      for (let j = 0; j < this.phrases.length){
-      let currPhrase = this.phrases[j];
-      let wordsInPhrase = currPhrase.trim().split(/\s/).length;
-        for (let w = 0; w < currPhrase.length; w+wordsInPhrase) {
-         
-    }
-  }
-  }
 }

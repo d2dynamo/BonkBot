@@ -1,28 +1,29 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 import { BonkDebtWallet } from "../interfaces/database";
-import { SaveBonkDebt, LoadBonkDebtWallets } from "../modules/BonkDebt";
+import { LoadBonkDebtWallets, SaveBonkDebt } from "../modules/BonkDebt";
 
-/* TODO: load debt for a user. If no user specified, load debt for the user who ran the command-
-  Save debt for a specified user. Only certain users can run this command.
+/* TODO: 
+
 */
 let debtWallets: BonkDebtWallet[] = [];
 let lastUpdatedWallets = Date.now();
 export default {
   data: new SlashCommandBuilder()
-    .setName("bd-add")
-    .setDescription("Add debt for a user")
+    .setName("bd-set")
+    .setDescription("Set debt for a user")
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user to load debt for")
+        .setDescription("The user to set debt for")
         .setRequired(true)
     )
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("amount")
-        .setDescription("The amount to add to the debt")
+        .setDescription("The amount to set the debt to")
         .setRequired(true)
     ),
+
   execute(interaction: CommandInteraction) {
     const user = interaction.options.getUser("user");
     if (!user) {
@@ -37,6 +38,7 @@ export default {
       return;
     }
 
+    // ensure amount.value is a number
     if (typeof amount.value !== "number") {
       interaction.reply("Amount must be a number");
       return;
@@ -57,17 +59,12 @@ export default {
         lastUpdated: Date.now(),
       });
     } else {
-      if (!userWallet.balance) {
-        userWallet.balance = 0;
-      }
-
-      userWallet.balance += amount.value;
+      userWallet.balance = amount.value;
       userWallet.lastUpdated = Date.now();
       debtWallets[userWalletIndex] = userWallet;
     }
 
     SaveBonkDebt(debtWallets);
-
-    interaction.reply(`Added debt for ${user.username}`);
+    interaction.reply(`Set debt for ${user.username} to ${amount.value}`);
   },
 };

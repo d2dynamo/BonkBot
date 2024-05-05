@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "discord.js": "^14.12.1",
-    "discordx": "^11.9.2",
     "dotenv": "^16.4.5"
   }
 }

@@ -1,33 +1,48 @@
-import { Client } from "discordx";
-import { Events } from "discord.js";
+import { Client, Events, GatewayIntentBits } from "discord.js";
+import fs from "fs";
+import path from "path";
 import "dotenv/config";
 
 import EventHandler from "./handlers";
+import registerCommands from "./modules/registerCommands";
+import Commands from "./commands";
 
-const client = new Client({
-  intents: ["Guilds", "GuildMessages", "GuildMembers", "MessageContent"],
-  silent: false,
-});
+(async () => {
+  const client = new Client({
+    intents: [
+      GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
+    ],
+  });
 
-client.on(Events.ClientReady, async () => {
-  console.log(">> Bot started");
+  client.on(Events.ClientReady, async () => {
+    console.log(">> Bot started");
 
-  // Fetch all guilds
-  const guilds = await client.guilds.fetch();
-  console.log(">> Fetched guilds", guilds.size);
+    console.log(">> Registering commands");
 
-  await client.initApplicationCommands();
-});
+    client.application?.commands.set(
+      Commands.map((command) => command.data.toJSON())
+    );
 
-client.on(Events.MessageCreate, async (message) =>
-  EventHandler.messageCreate(message)
-);
+    await registerCommands();
 
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-  console.log(">> Interaction", interaction);
+    const guilds = await client.guilds.fetch();
+    console.log(">> Fetched guilds", guilds.size);
+  });
 
-  EventHandler.slashCommand(interaction);
-});
+  client.on(Events.MessageCreate, async (message) =>
+    EventHandler.messageCreate(message)
+  );
 
-client.login(process.env.DBOT_TOKEN);
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (interaction.isCommand() || interaction.isContextMenuCommand()) {
+      EventHandler.slashCommand(interaction);
+      return;
+    }
+    console.log(">> Interaction", interaction);
+  });
+
+  client.login(process.env.DBOT_TOKEN);
+})();
