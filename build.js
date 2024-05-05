@@ -8,7 +8,7 @@ esbuild
     outfile: "dist/bundle.js",
     platform: "node",
     loader: { ".ts": "ts" },
-    target: "node18",
+    target: "node20",
     treeShaking: true,
     minify: true,
     plugins: [esbuildPluginTsc()],
