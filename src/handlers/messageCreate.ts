@@ -1,15 +1,18 @@
 import { EmojiResolvable, Message } from "discord.js";
-import gamerWords from "../constants/gamerWords";
-import GamerWord from "../interfaces/GamerWord";
+import GamerWord from "../modules/gamerWord/gamerWord";
 import { GamerWordDefaultResponse } from "../constants/defaults";
 import emojis from "../constants/emojis";
-import { LoadBonkDebtWallets, SaveBonkDebt } from "../modules/BonkDebt";
+import listAndBuildGamerWords from "../modules/gamerWord/list";
+import getUserWallet from "../modules/debtWallet/get";
+import updateWallet from "../modules/debtWallet/update";
+import createWallet from "../modules/debtWallet/create";
 
 let lastPing = Date.now();
 
 async function checkForGamerWords(message: Message): Promise<GamerWord[]> {
   const matchedGamerWords: GamerWord[] = [];
   const words = message.content.split(" ");
+  const gamerWords = await listAndBuildGamerWords();
 
   for (let i = 0; i < words.length; i++) {
     for (let j = 0; j < gamerWords.length; j++) {
@@ -58,24 +61,20 @@ export default async (message: Message) => {
       }. Nu krediteras du för ${totalCost} poäng.`
     );
 
-    const wallets = LoadBonkDebtWallets();
-    const userWallet = wallets.find((wallet) => wallet.userId === user.id);
+    try {
+      const userWallet = await getUserWallet(user.id);
 
-    if (userWallet) {
-      userWallet.balance += totalCost;
-      userWallet.lastUpdated = Date.now();
+      await updateWallet(userWallet.id, userWallet.balance + totalCost);
+    } catch (err: any) {
+      if (err.message && err.message === "Wallet not found") {
+        console.log("Wallet not found, creating new wallet.");
 
-      const index = wallets.findIndex((wallet) => wallet.userId === user.id);
-      wallets[index] = userWallet;
-    } else {
-      wallets.push({
-        userId: user.id,
-        balance: totalCost,
-        lastUpdated: Date.now(),
-      });
+        await createWallet(user.id);
+        await updateWallet(user.id, totalCost);
+      } else {
+        throw err;
+      }
     }
-
-    SaveBonkDebt(wallets);
 
     //message.react(emoji);
   }

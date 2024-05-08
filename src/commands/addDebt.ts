@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 import { BonkDebtWallet } from "../interfaces/database";
-import { SaveBonkDebt, LoadBonkDebtWallets } from "../modules/BonkDebt";
+import { SaveBonkDebtOld, LoadBonkDebtWalletsOld } from "../modules/BonkDebt";
 
 /* TODO: load debt for a user. If no user specified, load debt for the user who ran the command-
   Save debt for a specified user. Only certain users can run this command.
@@ -41,7 +41,7 @@ export default {
       return;
     }
 
-    debtWallets = LoadBonkDebtWallets();
+    debtWallets = LoadBonkDebtWalletsOld();
 
     const userWalletIndex = debtWallets.findIndex(
       (wallet) => wallet.userId === user.id
@@ -64,7 +64,7 @@ export default {
       debtWallets[userWalletIndex] = userWallet;
     }
 
-    SaveBonkDebt(debtWallets);
+    SaveBonkDebtOld(debtWallets);
 
     interaction.reply(`Added debt for ${user.username}`);
   },

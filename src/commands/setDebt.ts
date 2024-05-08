@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 import { BonkDebtWallet } from "../interfaces/database";
-import { LoadBonkDebtWallets, SaveBonkDebt } from "../modules/BonkDebt";
+import { LoadBonkDebtWalletsOld, SaveBonkDebtOld } from "../modules/BonkDebt";
 
 /* TODO: 
 
@@ -43,7 +43,7 @@ export default {
       return;
     }
 
-    debtWallets = LoadBonkDebtWallets();
+    debtWallets = LoadBonkDebtWalletsOld();
 
     const userWalletIndex = debtWallets.findIndex(
       (wallet) => wallet.userId === user.id
@@ -62,7 +62,7 @@ export default {
       debtWallets[userWalletIndex] = userWallet;
     }
 
-    SaveBonkDebt(debtWallets);
+    SaveBonkDebtOld(debtWallets);
     interaction.reply(`Set debt for ${user.username} to ${amount.value}`);
   },
 };

@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/d2dynamo/BonkBot#readme",
   "devDependencies": {
+    "@types/mssql": "^9.1.5",
     "@types/node": "^20.12.7",
     "esbuild": "^0.20.2",
     "esbuild-plugin-tsc": "^0.4.0",
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "discord.js": "^14.12.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "mssql": "^10.0.2"
   }
 }

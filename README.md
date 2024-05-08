@@ -1,6 +1,7 @@
 # BonkBot
 
-Discord manager bot n stuff
+Discord bot n stuff thingamajig.
+Having this public cause cant be bothered to setup permissions for my friends.
 
 # TODO
 

@@ -1,9 +1,19 @@
 import fs from "fs";
+
+import {
+  getMSSQLTransaction,
+  MSSQLDatabaseType as dbList,
+} from "../database/mssql";
 import { BonkDebtWallet } from "../interfaces/database";
 
 // This is a shitty thing local cold storage stuff
 
-export function LoadBonkDebtWallets(): BonkDebtWallet[] {
+/**
+ *
+ * Loads the bonk debt wallets from the local file system
+ * @deprecated
+ */
+export function LoadBonkDebtWalletsOld(): BonkDebtWallet[] {
   const loaded = JSON.parse(fs.readFileSync("d:/bonkdebt.json", "utf8"));
   const validated: BonkDebtWallet[] = [];
 
@@ -25,6 +35,11 @@ export function LoadBonkDebtWallets(): BonkDebtWallet[] {
   return validated;
 }
 
-export function SaveBonkDebt(data: BonkDebtWallet[]) {
+/**
+ *
+ * @param data data to save. Full file overwrite
+ * @deprecated
+ */
+export function SaveBonkDebtOld(data: BonkDebtWallet[]) {
   fs.writeFileSync("d:/bonkdebt.json", JSON.stringify(data));
 }
