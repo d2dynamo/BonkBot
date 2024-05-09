@@ -10,7 +10,7 @@ import {
  * @returns Updated wallet object
  */
 export default async function updateWallet(walletId: string, balance: number) {
-  const sql = await getMSSQLRequest(dbList.bonkData);
+  const sql = await getMSSQLRequest(dbList.bonkDb);
 
   sql.input("walletId", VarChar, walletId);
   sql.input("balance", Int, balance);
@@ -20,7 +20,7 @@ export default async function updateWallet(walletId: string, balance: number) {
       debt_wallets
     SET
       balance = @balance,
-      updated_at = GETDATE()
+      updated_at = SYSUTCDATETIME()
     WHERE
       id = @walletId
   `;

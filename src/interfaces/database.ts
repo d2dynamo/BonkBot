@@ -1,5 +1,7 @@
 /* NOTE: in database the naming is underscore case. So updatedAt is updated_at and so on */
 
+export type UserId = number;
+
 export interface BonkDebtWallet {
   id: string;
   userId: string;
@@ -9,7 +11,7 @@ export interface BonkDebtWallet {
 }
 
 export interface User {
-  id: string;
+  id: UserId; //discord user id
   createdAt: number;
   updatedAt: number;
 }

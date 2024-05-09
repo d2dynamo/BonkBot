@@ -17,6 +17,11 @@ import Commands from "./commands";
     ],
   });
 
+  if (!process.env.DBOT_TOKEN) {
+    console.error(">> No token provided");
+    return;
+  }
+
   client.on(Events.ClientReady, async () => {
     console.log(">> Bot started");
 

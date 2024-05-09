@@ -14,7 +14,7 @@ import GamerWord from "./gamerWord";
  * @returns GamerWord arra
  */
 export default async function listAndBuildGamerWords(): Promise<GamerWord[]> {
-  const sql = await getMSSQLRequest(dbList.bonkData);
+  const sql = await getMSSQLRequest(dbList.bonkDb);
 
   const query = `--sql
     SELECT

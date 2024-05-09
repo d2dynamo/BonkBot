@@ -8,13 +8,13 @@ import { UserError } from "../errors";
 
 /**
  * Get wallet for user.
- * @param id sql GUID
+ * @param id discord uid
  * @returns Wallet object
  */
 export default async function getUserWallet(
-  id: string
+  id: number
 ): Promise<BonkDebtWallet> {
-  const sql = await getMSSQLRequest(dbList.bonkData);
+  const sql = await getMSSQLRequest(dbList.bonkDb);
 
   sql.input("userId", VarChar, id);
 

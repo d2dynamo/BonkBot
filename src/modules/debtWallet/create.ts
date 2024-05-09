@@ -11,8 +11,8 @@ import {
  * @param userId discord uid for who the wallet belongs to
  * @returns User object
  */
-export default async function createWallet(userId: string) {
-  const sql = await getMSSQLRequest(dbList.bonkData);
+export default async function createWallet(userId: number) {
+  const sql = await getMSSQLRequest(dbList.bonkDb);
 
   sql.input("userId", VarChar, userId);
 
@@ -28,8 +28,8 @@ export default async function createWallet(userId: string) {
         NEWSEQUENTIALID(),
         @userId,
         0,
-        GETDATE(),
-        GETDATE()
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
       )
   `;
 

@@ -1,4 +1,4 @@
-import { VarChar } from "mssql";
+import { BigInt } from "mssql";
 import {
   MSSQLDatabaseType as dbList,
   getMSSQLRequest,
@@ -8,26 +8,24 @@ import {
 
 /**
  *
- * @param userId discord uid
+ * @param discordUId discord uid
  * @returns User object
  */
-export default async function createUser(discordUId: string) {
-  const sql = await getMSSQLRequest(dbList.bonkData);
+export default async function createUser(discordUId: number) {
+  const sql = await getMSSQLRequest(dbList.bonkDb);
 
-  sql.input("duid", VarChar, discordUId);
+  sql.input("duid", BigInt, discordUId);
 
   const query = `--sql
     INSERT INTO 
       users (
         id,
-        discord_id,
         created_at,
         updated_at
       ) VALUES (
-        NEWSEQUENTIALID(),
         @duid,
-        GETDATE(),
-        GETDATE()
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
       )
   `;
 

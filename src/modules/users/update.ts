@@ -7,18 +7,13 @@ import getUser from "./get";
 
 /**
  * Currently useless but will be useful in future. Also testing out transactions here dont mind me.
- * @param id sql GUID
- * @param userId discord uid
+ * @param id discord uid
  * @returns User object
  */
-async function updateUser(id?: string, discordUId?: string) {
-  if (!id && !discordUId) {
-    throw new Error("Missing id or discordUId");
-  }
+export default async function updateUser(id: number) {
+  await getUser(id);
 
-  await getUser(id, discordUId);
-
-  const sqlTx = await getMSSQLTransaction(dbList.bonkData);
+  const sqlTx = await getMSSQLTransaction(dbList.bonkDb);
   if (!sqlTx) {
     throw new Error("Failed to get MSSQL transaction");
   }
@@ -29,15 +24,14 @@ async function updateUser(id?: string, discordUId?: string) {
     const sql = sqlTx.request();
 
     sql.input("id", VarChar, id);
-    sql.input("duid", VarChar, discordUId);
 
     const query = `--sql
       UPDATE
         users
       SET
-        updated_at = GETDATE()
+        updated_at = SYSUTCDATETIME()
       WHERE
-        id = @id OR discord_id = @duid
+        id = @id
     `;
 
     const result = await sql.query(query);

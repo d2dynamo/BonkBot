@@ -13,7 +13,7 @@ if (
 const dbPools = new Map<MSSQLDatabaseType, sql.ConnectionPool | null>();
 
 export enum MSSQLDatabaseType {
-  bonkData = "bonk_data",
+  bonkDb = "bonk_db",
 }
 
 async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
@@ -34,13 +34,13 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
       database: dbt!,
       port,
       options: {
-        appName: "bonk_bot_server",
+        appName: "bonk_bot_service",
         trustServerCertificate: true,
         connectTimeout: 5000,
       },
       pool: {
-        min: 10,
-        max: 100,
+        min: 4,
+        max: 50,
       },
       parseJSON: true,
     })

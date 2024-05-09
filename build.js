@@ -5,12 +5,11 @@ esbuild
   .build({
     entryPoints: ["src/main.ts"],
     bundle: true,
-    outfile: "dist/bundle.js",
+    outfile: "build/bundle.js",
     platform: "node",
     loader: { ".ts": "ts" },
-    target: "node20",
     treeShaking: true,
-    minify: true,
+    minify: false,
     plugins: [esbuildPluginTsc()],
   })
   .catch((err) => {
