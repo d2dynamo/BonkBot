@@ -1,31 +1,37 @@
-import { VarChar } from "mssql";
+import { UniqueIdentifier } from "mssql";
 
 import {
   MSSQLDatabaseType as dbList,
   getMSSQLRequest,
 } from "../../database/mssql";
-import { UserError } from "../errors";
 import GamerWord from "./gamerWord";
 
 // TODO: CACHING FOR THIS SH**. This will be called on every f***ing message in discord.
 
 /**
  * Get all GameWords.
- * @returns GamerWord arra
+ * @returns GamerWord array
  */
 export default async function listAndBuildGamerWords(): Promise<GamerWord[]> {
   const sql = await getMSSQLRequest(dbList.bonkDb);
 
   const query = `--sql
     SELECT
-      id,
-      phrases,
-      response,
-      cost,
-      created_at
-      updated_at
+      gw.id,
+      gw.word,
+      gw.cost,
+      gw.response,
+      gw.created_at,
+      gw.updated_at,
+      (SELECT
+          gwp.phrase
+      FROM
+          gamer_word_phrases gwp
+      WHERE
+          gwp.gamer_word_id = gw.id
+      FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS phrases
     FROM
-      gamer_words
+      gamer_words gw
   `;
 
   const result = await sql.query(query);
@@ -37,22 +43,13 @@ export default async function listAndBuildGamerWords(): Promise<GamerWord[]> {
   const gamerWordList: GamerWord[] = [];
 
   for (let i = 0; i < result.recordset.length; i++) {
-    if (typeof result.recordset[i].phrases !== "string") {
-      console.log(
-        `Phrases for a gamer word is not a string. id: ${result.recordset[i].id}`
-      );
-      continue;
-    }
-    const phrasesRaw = result.recordset[i].phrases as string;
-
-    const phrasesArr = phrasesRaw.split(",").map((phrase) => phrase.trim());
-
-    gamerWordList.push(
-      new GamerWord(phrasesArr, {
-        response: result.recordset[i].response,
-        cost: result.recordset[i].cost,
-      })
+    const gamerWord = new GamerWord(
+      result.recordset[i].word,
+      result.recordset[i].cost,
+      { response: result.recordset[i].response || null }
     );
+
+    gamerWordList.push(gamerWord);
   }
 
   return gamerWordList;

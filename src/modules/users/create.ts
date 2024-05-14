@@ -1,20 +1,19 @@
-import { BigInt } from "mssql";
+import { VarChar } from "mssql";
 import {
   MSSQLDatabaseType as dbList,
   getMSSQLRequest,
 } from "../../database/mssql";
-
-// TODO: Maybe just trust discord uid and use it as primary key, skipping database own unique id.
+import { UserId } from "../../interfaces/database";
 
 /**
  *
- * @param discordUId discord uid
+ * @param discordUID discord uid
  * @returns User object
  */
-export default async function createUser(discordUId: number) {
+export default async function createUser(discordUID: UserId) {
   const sql = await getMSSQLRequest(dbList.bonkDb);
 
-  sql.input("duid", BigInt, discordUId);
+  sql.input("duid", VarChar, discordUID);
 
   const query = `--sql
     INSERT INTO 
@@ -35,5 +34,5 @@ export default async function createUser(discordUId: number) {
     throw new Error("Failed to create user");
   }
 
-  return result.recordset[0];
+  return true;
 }

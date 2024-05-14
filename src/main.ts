@@ -1,11 +1,10 @@
 import { Client, Events, GatewayIntentBits } from "discord.js";
-import fs from "fs";
-import path from "path";
 import "dotenv/config";
 
 import EventHandler from "./handlers";
 import registerCommands from "./modules/registerCommands";
 import Commands from "./commands";
+import registerUsers from "./modules/users/register";
 
 (async () => {
   const client = new Client({
@@ -35,6 +34,13 @@ import Commands from "./commands";
 
     const guilds = await client.guilds.fetch();
     console.log(">> Fetched guilds", guilds.size);
+    guilds.forEach(async (guild) => {
+      console.log(">> Guild", guild.name);
+      const g = await guild.fetch();
+      await registerUsers(g);
+    });
+
+    console.log(">> Ready to bonk!");
   });
 
   client.on(Events.MessageCreate, async (message) =>

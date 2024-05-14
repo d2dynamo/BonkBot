@@ -1,33 +1,37 @@
-import { VarChar } from "mssql";
+import { Int, VarChar } from "mssql";
 import {
   MSSQLDatabaseType as dbList,
   getMSSQLRequest,
 } from "../../database/mssql";
+import { BonkDebtWallet, UserId } from "../../interfaces/database";
+import parseUserId from "../users/userId";
 
-// TODO: Also create a 'transactions' table for storing history of wallet events.
+// TODO: Fix this with the transactions table where balance is stored
 
 /**
  *
  * @param userId discord uid for who the wallet belongs to
- * @returns User object
+ * @returns Wallet object
  */
-export default async function createWallet(userId: number) {
+export default async function createWallet(
+  userId: UserId,
+  startingBalance: number = 0
+): Promise<boolean> {
+  parseUserId(userId);
+
   const sql = await getMSSQLRequest(dbList.bonkDb);
 
   sql.input("userId", VarChar, userId);
+  //sql.input("sb", Int, startingBalance);
 
   const query = `--sql
     INSERT INTO 
-      debt_wallets (
-        id,
+      bonk_wallets (
         user_id,
-        balance,
         created_at,
         updated_at
       ) VALUES (
-        NEWSEQUENTIALID(),
         @userId,
-        0,
         SYSUTCDATETIME(),
         SYSUTCDATETIME()
       )
@@ -39,5 +43,5 @@ export default async function createWallet(userId: number) {
     throw new Error("Failed to create wallet.");
   }
 
-  return result.recordset[0];
+  return true;
 }

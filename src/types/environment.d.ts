@@ -10,6 +10,10 @@ declare global {
 
       DBOT_TOKEN: string;
       DBOT_APP_ID: string;
+      MSSQL_SERVER: string;
+      MSSQL_PORT: string;
+      MSSQL_USER: string;
+      MSSQL_PASSWORD: string;
     }
   }
 }

@@ -4,13 +4,13 @@ import {
   getMSSQLTransaction,
 } from "../../database/mssql";
 import getUser from "./get";
+import { UserId } from "../../interfaces/database";
 
 /**
  * Currently useless but will be useful in future. Also testing out transactions here dont mind me.
  * @param id discord uid
- * @returns User object
  */
-export default async function updateUser(id: number) {
+export default async function updateUser(id: UserId) {
   await getUser(id);
 
   const sqlTx = await getMSSQLTransaction(dbList.bonkDb);
@@ -40,7 +40,7 @@ export default async function updateUser(id: number) {
       throw new Error("Failed to update user");
     }
 
-    return result.recordset[0];
+    return true;
   } catch (err) {
     await sqlTx.rollback();
     throw err;

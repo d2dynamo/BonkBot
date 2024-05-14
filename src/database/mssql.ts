@@ -1,13 +1,11 @@
 import sql from "mssql";
 
 if (
-  !process.env.BONK_BOT_MSSQL_USER ||
-  !process.env.BONK_BOT_MSSQL_PASSWORD ||
-  !process.env.BONK_BOT_MSSQL_SERVER
+  !process.env.MSSQL_USER ||
+  !process.env.MSSQL_PASSWORD ||
+  !process.env.MSSQL_SERVER
 ) {
-  throw new Error(
-    "BONK_BOT_MSSQL_USER || BONK_BOT_MSSQL_PASSWORD || BONK_BOT_MSSQL_SERVER missing."
-  );
+  throw new Error("MSSQL_USER || MSSQL_PASSWORD || MSSQL_SERVER missing.");
 }
 
 const dbPools = new Map<MSSQLDatabaseType, sql.ConnectionPool | null>();
@@ -21,16 +19,14 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
     return;
   }
 
-  const port = process.env.BONK_BOT_MSSQL_PORT
-    ? +process.env.BONK_BOT_MSSQL_PORT
-    : 1433;
+  const port = process.env.MSSQL_PORT ? +process.env.MSSQL_PORT : 1433;
 
   dbPools.set(
     dbt,
     new sql.ConnectionPool({
-      user: process.env.BONK_BOT_MSSQL_USER!,
-      password: process.env.BONK_BOT_MSSQL_PASSWORD!,
-      server: process.env.BONK_BOT_MSSQL_SERVER!,
+      user: process.env.MSSQL_USER!,
+      password: process.env.MSSQL_PASSWORD!,
+      server: process.env.MSSQL_SERVER!,
       database: dbt!,
       port,
       options: {

@@ -1,11 +1,10 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
-import { BonkDebtWallet } from "../interfaces/database";
-import { SaveBonkDebtOld, LoadBonkDebtWalletsOld } from "../modules/BonkDebt";
+import getUserWallet from "../modules/debtWallet/get";
+import parseUserId from "../modules/users/userId";
+import updateUserWallet from "../modules/debtWallet/update";
 
 /* TODO: load debt for a user. If no user specified, load debt for the user who ran the command-
-  Save debt for a specified user. Only certain users can run this command.
-*/
-let debtWallets: BonkDebtWallet[] = [];
+ */
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-add")
@@ -22,7 +21,7 @@ export default {
         .setDescription("The amount to add to the debt")
         .setRequired(true)
     ),
-  execute(interaction: CommandInteraction) {
+  async execute(interaction: CommandInteraction) {
     const user = interaction.options.getUser("user");
     if (!user) {
       interaction.reply("No user specified");
@@ -41,30 +40,21 @@ export default {
       return;
     }
 
-    debtWallets = LoadBonkDebtWalletsOld();
+    const userWallet = await getUserWallet(parseUserId(user.id));
 
-    const userWalletIndex = debtWallets.findIndex(
-      (wallet) => wallet.userId === user.id
-    );
-
-    const userWallet = debtWallets[userWalletIndex];
     if (!userWallet) {
-      debtWallets.push({
-        userId: user.id,
-        balance: amount.value,
-        lastUpdated: Date.now(),
-      });
-    } else {
-      if (!userWallet.balance) {
-        userWallet.balance = 0;
-      }
-
-      userWallet.balance += amount.value;
-      userWallet.lastUpdated = Date.now();
-      debtWallets[userWalletIndex] = userWallet;
+      interaction.reply("User wallet not found");
+      return;
     }
 
-    SaveBonkDebtOld(debtWallets);
+    let newBalance = amount.value;
+
+    if (typeof userWallet.balance === "number") {
+      newBalance += userWallet.balance;
+      return;
+    }
+
+    await updateUserWallet(user.id, newBalance);
 
     interaction.reply(`Added debt for ${user.username}`);
   },

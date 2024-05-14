@@ -1,11 +1,8 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
-import { BonkDebtWallet } from "../interfaces/database";
-import { LoadBonkDebtWalletsOld } from "../modules/BonkDebt";
+import getUserWallet from "../modules/debtWallet/get";
+import parseUserId from "../modules/users/userId";
+import createWallet from "../modules/debtWallet/create";
 
-/* TODO: load debt for a user. If no user specified, load debt for the user who ran the command-
-  Save debt for a specified user. Only certain users can run this command.
-*/
-let debtWallets: BonkDebtWallet[] = [];
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-load")
@@ -16,23 +13,30 @@ export default {
         .setDescription("The user to load debt for")
         .setRequired(true)
     ),
-  execute(interaction: CommandInteraction) {
+  async execute(interaction: CommandInteraction) {
     const user = interaction.options.getUser("user");
     if (!user) {
       interaction.reply("No user specified");
       return;
     }
 
-    debtWallets = LoadBonkDebtWalletsOld();
+    console.log("user", user);
 
-    const userWallet = debtWallets.find((wallet) => wallet.userId === user.id);
-    if (!userWallet || userWallet.balance === 0) {
-      interaction.reply(`${user.username} has no debt`);
+    const userWallet = await getUserWallet(parseUserId(user.id));
+
+    if (!userWallet) {
+      interaction.reply("User wallet not found");
+      createWallet(parseUserId(user.id));
+      return;
+    }
+
+    if (typeof userWallet.balance !== "number" || userWallet.balance === 0) {
+      interaction.reply(`${user.username} har ingen skuld`);
       return;
     }
 
     interaction.reply(
-      `${user.username} is in debt by ${userWallet.balance} credits`
+      `${user.username} är i skuld med ${userWallet.balance} kronor.`
     );
   },
 };

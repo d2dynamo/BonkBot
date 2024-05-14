@@ -11,7 +11,7 @@ export default class Command {
       required: boolean;
     }[];
   };
-  readonly execute: (interaction: CommandInteraction) => void;
+  readonly execute: (interaction: CommandInteraction) => Promise<void>;
 
   constructor(
     data: {
@@ -24,7 +24,7 @@ export default class Command {
         required: boolean;
       }[];
     },
-    execute: (interaction: CommandInteraction) => void
+    execute: (interaction: CommandInteraction) => Promise<void>
   ) {
     this.data = data;
     this.execute = execute;

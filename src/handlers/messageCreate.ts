@@ -4,7 +4,7 @@ import { GamerWordDefaultResponse } from "../constants/defaults";
 import emojis from "../constants/emojis";
 import listAndBuildGamerWords from "../modules/gamerWord/list";
 import getUserWallet from "../modules/debtWallet/get";
-import updateWallet from "../modules/debtWallet/update";
+import updateUserWallet from "../modules/debtWallet/update";
 import createWallet from "../modules/debtWallet/create";
 
 let lastPing = Date.now();
@@ -64,13 +64,13 @@ export default async (message: Message) => {
     try {
       const userWallet = await getUserWallet(user.id);
 
-      await updateWallet(userWallet.id, userWallet.balance + totalCost);
+      await updateUserWallet(user.id, userWallet.balance + totalCost);
     } catch (err: any) {
       if (err.message && err.message === "Wallet not found") {
         console.log("Wallet not found, creating new wallet.");
 
         await createWallet(user.id);
-        await updateWallet(user.id, totalCost);
+        await updateUserWallet(user.id, totalCost);
       } else {
         throw err;
       }

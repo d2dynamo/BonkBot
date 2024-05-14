@@ -1,11 +1,9 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
-import { BonkDebtWallet } from "../interfaces/database";
-import { LoadBonkDebtWalletsOld, SaveBonkDebtOld } from "../modules/BonkDebt";
+import getUserWallet from "../modules/debtWallet/get";
+import parseUserId from "../modules/users/userId";
+import createWallet from "../modules/debtWallet/create";
+import updateUserWallet from "../modules/debtWallet/update";
 
-/* TODO: 
-
-*/
-let debtWallets: BonkDebtWallet[] = [];
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-set")
@@ -23,7 +21,7 @@ export default {
         .setRequired(true)
     ),
 
-  execute(interaction: CommandInteraction) {
+  async execute(interaction: CommandInteraction) {
     const user = interaction.options.getUser("user");
     if (!user) {
       interaction.reply("No user specified");
@@ -37,32 +35,29 @@ export default {
       return;
     }
 
-    // ensure amount.value is a number
     if (typeof amount.value !== "number") {
       interaction.reply("Amount must be a number");
       return;
     }
 
-    debtWallets = LoadBonkDebtWalletsOld();
+    try {
+      let userWallet = await getUserWallet(user.id);
 
-    const userWalletIndex = debtWallets.findIndex(
-      (wallet) => wallet.userId === user.id
-    );
-
-    const userWallet = debtWallets[userWalletIndex];
-    if (!userWallet) {
-      debtWallets.push({
-        userId: user.id,
-        balance: amount.value,
-        lastUpdated: Date.now(),
-      });
-    } else {
-      userWallet.balance = amount.value;
-      userWallet.lastUpdated = Date.now();
-      debtWallets[userWalletIndex] = userWallet;
+      if (!userWallet) {
+        await createWallet(user.id, amount.value);
+      } else {
+        await updateUserWallet(user.id, amount.value);
+      }
+    } catch (error: any) {
+      if (error.message === "Wallet not found") {
+        await createWallet(user.id, amount.value);
+      } else {
+        console.error(error);
+        interaction.reply("Failed to set debt");
+        return;
+      }
     }
 
-    SaveBonkDebtOld(debtWallets);
     interaction.reply(`Set debt for ${user.username} to ${amount.value}`);
   },
 };

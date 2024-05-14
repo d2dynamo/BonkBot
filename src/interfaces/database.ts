@@ -1,26 +1,34 @@
 /* NOTE: in database the naming is underscore case. So updatedAt is updated_at and so on */
 
-export type UserId = number;
+export type UserId = string;
 
 export interface BonkDebtWallet {
   id: string;
-  userId: string;
+  userId: UserId;
   balance: number;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface User {
-  id: UserId; //discord user id
-  createdAt: number;
-  updatedAt: number;
+  id: UserId; //discord uid
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface GamerWord {
   id: string;
-  phrases: string; //multi-word phrases separated with comma. Ex: 'lorem ipsum, dolor, sit amet,...'
-  response?: string;
+  word: string;
   cost?: number;
-  createdAt: number;
-  updatedAt: number;
+  response?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GamerWordPhrases {
+  id: string;
+  wordId: string;
+  phrase: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
