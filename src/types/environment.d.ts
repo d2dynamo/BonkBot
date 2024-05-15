@@ -10,6 +10,9 @@ declare global {
 
       DBOT_TOKEN: string;
       DBOT_APP_ID: string;
+
+      SQLITE_DB_PATH: string;
+
       MSSQL_SERVER: string;
       MSSQL_PORT: string;
       MSSQL_USER: string;

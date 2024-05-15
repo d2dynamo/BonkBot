@@ -1,5 +1,5 @@
 import sql from "mssql";
-
+// forget mssql. shits not worth the trouble. LIKE WHY THE F CAN ONLY BEEKEEPER LOGIN TO THE SERVER
 if (
   !process.env.MSSQL_USER ||
   !process.env.MSSQL_PASSWORD ||
@@ -14,13 +14,14 @@ export enum MSSQLDatabaseType {
   bonkDb = "bonk_db",
 }
 
+/**@deprecated */
 async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
   if (dbPools.get(dbt)?.connected) {
     return;
   }
 
   let port = process.env.MSSQL_PORT ? +process.env.MSSQL_PORT : 1433;
-  console.log("mssqlport", port);
+
   if (typeof process.env.MSSQL_PORT === "string") {
     port = parseInt(process.env.MSSQL_PORT);
   }
@@ -36,11 +37,11 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
       options: {
         appName: "bonk_bot_discord",
         trustServerCertificate: true,
-        connectTimeout: 10000,
+        connectTimeout: 5000,
       },
       pool: {
-        min: 4,
-        max: 50,
+        min: 1,
+        max: 40,
       },
       parseJSON: true,
     })
@@ -61,6 +62,7 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
   });
 }
 
+/**@deprecated */
 export async function getMSSQLPool(
   dbt: MSSQLDatabaseType
 ): Promise<sql.ConnectionPool> {
@@ -75,6 +77,7 @@ export async function getMSSQLPool(
   return dbPools.get(dbt)!;
 }
 
+/**@deprecated */
 export async function getMSSQLRequest(
   dbt: MSSQLDatabaseType
 ): Promise<sql.Request> {
@@ -83,6 +86,7 @@ export async function getMSSQLRequest(
   return p.request();
 }
 
+/**@deprecated */
 export async function getMSSQLTransaction(
   dbt: MSSQLDatabaseType
 ): Promise<sql.Transaction> {
@@ -91,6 +95,7 @@ export async function getMSSQLTransaction(
   return p.transaction();
 }
 
+/**@deprecated */
 export function getMSSQLPreparedStatement(
   tr: sql.Transaction
 ): sql.PreparedStatement {

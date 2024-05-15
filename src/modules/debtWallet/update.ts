@@ -1,36 +1,51 @@
-import { Int, UniqueIdentifier, BigInt } from "mssql";
-import {
-  MSSQLDatabaseType as dbList,
-  getMSSQLRequest,
-} from "../../database/mssql";
+import { eq } from "drizzle-orm";
+
+import drizzledb, { DatabaseType } from "../database/drizzle";
+import { bonkWallets, bonkWalletTransactions } from "../database/schema";
 import { UserId } from "../../interfaces/database";
-import parseUserId from "../users/userId";
+import { UserError } from "../errors";
 
 /**
  * Update wallet.
  * @param walletId wallet id
+ * @param balance new balance.
  */
-export async function updateWallet(walletId: string, balance: number) {
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+export async function updateWallet(
+  walletId: number,
+  balance: number,
+  creatorUserId: UserId
+) {
+  const db = drizzledb(DatabaseType.bonkDb);
+  await db.transaction(async (tx) => {
+    const walletResult = await tx
+      .select()
+      .from(bonkWallets)
+      .where(eq(bonkWallets.id, walletId))
+      .limit(1);
 
-  sql.input("walletId", UniqueIdentifier, walletId);
-  sql.input("balance", Int, balance);
+    if (walletResult.length === 0) {
+      throw new UserError("Wallet does not exist.");
+    }
 
-  const query = `--sql
-    UPDATE 
-      bonk_wallets
-    SET
-      balance = @balance,
-      updated_at = SYSUTCDATETIME()
-    WHERE
-      id = @walletId
-  `;
+    const wallet = walletResult[0];
 
-  const result = await sql.query(query);
+    const createTransactionResult = await tx
+      .insert(bonkWalletTransactions)
+      .values({
+        walletId: walletId,
+        creatorUserId: creatorUserId,
+        balance: balance,
+      });
 
-  if (result.rowsAffected[0] === 0) {
-    throw new Error("Failed to update wallet.");
-  }
+    if (createTransactionResult.changes === 0) {
+      throw new Error("Failed to create transaction.");
+    }
+
+    await tx
+      .update(bonkWallets)
+      .set({ updatedAt: Date.now() })
+      .where(eq(bonkWallets.id, walletId));
+  });
 
   return true;
 }
@@ -38,34 +53,43 @@ export async function updateWallet(walletId: string, balance: number) {
 /**
  * Update user wallet.
  * @param userId discord uid
- * @param balance
+ * @param balance new balance.
  */
 export default async function updateUserWallet(
   userId: UserId,
-  balance: number
+  balance: number,
+  creatorUserId: UserId
 ) {
-  parseUserId(userId);
+  const db = drizzledb(DatabaseType.bonkDb);
 
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+  const userWallet = await db.transaction(async (trx) => {
+    const walletResult = await trx
+      .select()
+      .from(bonkWallets)
+      .where(eq(bonkWallets.userId, userId))
+      .limit(1);
 
-  sql.input("userId", BigInt, userId);
-  sql.input("balance", Int, balance);
+    if (walletResult.length === 0) {
+      throw new UserError("Wallet does not exist.");
+    }
 
-  const query = `--sql
-    UPDATE 
-      bonk_wallets
-    SET
-      balance = @balance,
-      updated_at = SYSUTCDATETIME()
-    WHERE
-      user_id = @userId
-  `;
+    const wallet = walletResult[0];
 
-  const result = await sql.query(query);
+    const createTransactionResult = await trx
+      .insert(bonkWalletTransactions)
+      .values({
+        walletId: wallet.id,
+        creatorUserId: creatorUserId,
+        balance: balance,
+      });
 
-  if (result.rowsAffected[0] === 0) {
-    throw new Error("Failed to update wallet.");
-  }
+    if (createTransactionResult.changes === 0) {
+      throw new Error("Failed to create transaction.");
+    }
 
-  return true;
+    await trx
+      .update(bonkWallets)
+      .set({ updatedAt: Date.now() })
+      .where(eq(bonkWallets.id, wallet.id));
+  });
 }

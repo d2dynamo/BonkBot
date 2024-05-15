@@ -1,47 +1,38 @@
-import { Int, VarChar } from "mssql";
-import {
-  MSSQLDatabaseType as dbList,
-  getMSSQLRequest,
-} from "../../database/mssql";
-import { BonkDebtWallet, UserId } from "../../interfaces/database";
+import { eq } from "drizzle-orm";
+import drizzledb, { DatabaseType } from "../database/drizzle";
+import { users, bonkWallets, bonkWalletTransactions } from "../database/schema";
+import { UserId } from "../../interfaces/database";
 import parseUserId from "../users/userId";
 
-// TODO: Fix this with the transactions table where balance is stored
-
 /**
+ * Creates a wallet for a user with an optional starting balance.
  *
- * @param userId discord uid for who the wallet belongs to
- * @returns Wallet object
+ * @param userId - Discord UID for who the wallet belongs to.
+ * @param startingBalance - Initial balance of the wallet (default: 0).
+ * @returns A promise that resolves to a boolean indicating success.
  */
-export default async function createWallet(
-  userId: UserId,
-  startingBalance: number = 0
-): Promise<boolean> {
+export default async function createWallet(userId: UserId): Promise<boolean> {
   parseUserId(userId);
+  const db = drizzledb(DatabaseType.bonkDb);
 
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+  await db.transaction(async (tx) => {
+    const user = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, userId));
 
-  sql.input("userId", VarChar, userId);
-  //sql.input("sb", Int, startingBalance);
+    if (!user.length) {
+      throw new Error("User does not exist.");
+    }
 
-  const query = `--sql
-    INSERT INTO 
-      bonk_wallets (
-        user_id,
-        created_at,
-        updated_at
-      ) VALUES (
-        @userId,
-        SYSUTCDATETIME(),
-        SYSUTCDATETIME()
-      )
-  `;
+    const createWalletResult = await tx.insert(bonkWallets).values({
+      userId: userId,
+    });
 
-  const result = await sql.query(query);
-
-  if (result.rowsAffected[0] === 0) {
-    throw new Error("Failed to create wallet.");
-  }
+    if (createWalletResult.changes === 0) {
+      throw new Error("Failed to create wallet.");
+    }
+  });
 
   return true;
 }

@@ -7,6 +7,8 @@ Do not use esbuild minify, it upsets up discord.js code somehow. Terser works in
 
 # TODO
 
+Rewrite to use sqlit because mssql no happy with being in container.
+
 ## Internal permssions
 
 User permissions for who may or may not use certain commands.

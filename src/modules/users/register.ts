@@ -44,7 +44,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
             }
           }
         } else {
-          console.log(">> Error", error);
+          console.log(">> Error: ", error);
           throw error;
         }
       }

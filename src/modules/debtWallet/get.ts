@@ -1,87 +1,54 @@
-import { UniqueIdentifier, VarChar } from "mssql";
-import {
-  MSSQLDatabaseType as dbList,
-  getMSSQLRequest,
-} from "../../database/mssql";
-import { BonkDebtWallet, UserId } from "../../interfaces/database";
+import { desc, eq } from "drizzle-orm";
+
+import drizzledb, { DatabaseType } from "../database/drizzle";
+import { bonkWallets, bonkWalletTransactions } from "../database/schema";
+import { UserId } from "../../interfaces/database";
 import { UserError } from "../errors";
+import { DebtWallet } from "./debtWallet";
 import parseUserId from "../users/userId";
-
-export async function getWallet(walletId: string): Promise<BonkDebtWallet> {
-  const sql = await getMSSQLRequest(dbList.bonkDb);
-
-  sql.input("walletId", UniqueIdentifier, walletId);
-
-  const query = `--sql
-    SELECT
-      id,
-      balance,
-      created_at,
-      updated_at
-    FROM
-      bonk_wallets
-    WHERE
-      id = @walletId
-  `;
-
-  const result = await sql.query(query);
-
-  if (result.recordset.length === 0) {
-    throw new UserError("Wallet not found");
-  }
-
-  return result.recordset[0];
-}
 
 /**
  * Get wallet for user.
- * @param id discord uid
- * @returns Wallet object
+ * @param id - Discord UID.
+ * @returns A promise that resolves to a BonkDebtWallet object.
  */
-export default async function getUserWallet(
-  id: UserId
-): Promise<BonkDebtWallet> {
+export default async function getUserWallet(id: UserId): Promise<DebtWallet> {
   parseUserId(id);
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+  const db = drizzledb(DatabaseType.bonkDb);
 
-  sql.input("userId", VarChar, id);
+  const userWallet = await db.transaction(async (trx) => {
+    const walletResult = await trx
+      .select()
+      .from(bonkWallets)
+      .where(eq(bonkWallets.userId, id))
+      .limit(1);
 
-  const query = `--sql
-  WITH LatestTransaction AS (
-    SELECT 
-      wallet_id,
-      balance,
-      ROW_NUMBER() OVER (PARTITION BY wallet_id ORDER BY created_at DESC) AS rn
-    FROM 
-      bonk_wallet_transactions
-  )
-  SELECT 
-    bw.id AS wallet_id,
-    bw.user_id,
-    bw.created_at,
-    bw.updated_at,
-    COALESCE(lt.balance, 0) AS current_balance
-  FROM 
-    bonk_wallets bw
-  LEFT JOIN 
-    LatestTransaction lt
-  ON 
-    bw.id = lt.wallet_id AND lt.rn = 1
-  WHERE 
-    bw.user_id = @userId
-  `;
+    if (walletResult.length === 0) {
+      throw new UserError("User does not exist.");
+    }
 
-  const result = await sql.query(query);
+    const wallet = walletResult[0];
 
-  if (result.recordset.length === 0) {
-    throw new UserError("Wallet not found");
-  }
+    // Get the latest transaction for the wallet
+    const latestTransaction = await trx
+      .select()
+      .from(bonkWalletTransactions)
+      .where(eq(bonkWalletTransactions.walletId, wallet.id))
+      .orderBy(desc(bonkWalletTransactions.createdAt))
+      .limit(1);
 
-  return {
-    id: result.recordset[0].id,
-    userId: id,
-    balance: result.recordset[0].current_balance,
-    createdAt: result.recordset[0].created_at,
-    updatedAt: result.recordset[0].updated_at,
-  };
+    return {
+      id: wallet.id,
+      userId: wallet.userId,
+      balance: latestTransaction.length > 0 ? latestTransaction[0].balance : 0,
+      lastTransactionId:
+        latestTransaction.length > 0 ? latestTransaction[0].id : 0,
+      lastTransactionCreatedAt:
+        latestTransaction.length > 0 ? latestTransaction[0].createdAt : 0,
+      createdAt: wallet.createdAt,
+      updatedAt: wallet.updatedAt,
+    };
+  });
+
+  return userWallet;
 }

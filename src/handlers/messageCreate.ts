@@ -59,10 +59,15 @@ export default async (message: Message) => {
     try {
       const userWallet = await getUserWallet(user.id);
 
-      await updateUserWallet(user.id, userWallet.balance + totalCost);
+      await updateUserWallet(
+        user.id,
+        userWallet.balance + totalCost,
+        message.author.id
+      );
     } catch (err: any) {
       if (err.message && err.message === "Wallet not found") {
-        await createWallet(user.id, totalCost);
+        await createWallet(user.id);
+        await updateUserWallet(user.id, totalCost, message.author.id);
       } else {
         throw err;
       }

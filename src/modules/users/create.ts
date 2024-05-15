@@ -1,36 +1,22 @@
-import { VarChar } from "mssql";
-import {
-  MSSQLDatabaseType as dbList,
-  getMSSQLRequest,
-} from "../../database/mssql";
+import drizzledb, { DatabaseType } from "../database/drizzle";
+import { users } from "../database/schema";
 import { UserId } from "../../interfaces/database";
+import parseUserId from "./userId";
 
 /**
- *
- * @param discordUID discord uid
- * @returns User object
+ * Create a new user.
+ * @param discordUID - Discord UID.
+ * @returns A promise that resolves to a boolean indicating success.
  */
 export default async function createUser(discordUID: UserId) {
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+  parseUserId(discordUID);
+  const db = drizzledb(DatabaseType.bonkDb);
 
-  sql.input("duid", VarChar, discordUID);
+  const result = await db.insert(users).values({
+    id: discordUID,
+  });
 
-  const query = `--sql
-    INSERT INTO 
-      users (
-        id,
-        created_at,
-        updated_at
-      ) VALUES (
-        @duid,
-        SYSUTCDATETIME(),
-        SYSUTCDATETIME()
-      )
-  `;
-
-  const result = await sql.query(query);
-
-  if (result.rowsAffected[0] === 0) {
+  if (!result.changes) {
     throw new Error("Failed to create user");
   }
 

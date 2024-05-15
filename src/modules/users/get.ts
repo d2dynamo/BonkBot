@@ -1,10 +1,9 @@
-import { VarChar } from "mssql";
-import {
-  MSSQLDatabaseType as dbList,
-  getMSSQLRequest,
-} from "../../database/mssql";
+import drizzledb, { DatabaseType } from "../database/drizzle";
+
+import { users } from "../database/schema";
+import parseUserId from "./userId";
 import { User, UserId } from "../../interfaces/database";
-import { UserError } from "../errors";
+import { eq } from "drizzle-orm";
 
 /**
  * Get user by id or discord uid.
@@ -13,30 +12,19 @@ import { UserError } from "../errors";
  * @returns User object
  */
 export default async function getUser(id: UserId): Promise<User> {
-  const sql = await getMSSQLRequest(dbList.bonkDb);
+  parseUserId(id);
 
-  sql.input("userId", VarChar, id);
+  const db = drizzledb(DatabaseType.bonkDb);
 
-  const query = `--sql
-    SELECT
-      id,
-      created_at,
-      updated_at
-    FROM
-      users
-    WHERE
-      id = @userId
-  `;
+  const userResult = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
 
-  const result = await sql.query(query);
-
-  if (result.recordset.length === 0) {
-    throw new UserError("User not found");
+  if (userResult.length === 0) {
+    throw new Error("User does not exist.");
   }
 
-  return {
-    id: result.recordset[0].id,
-    createdAt: result.recordset[0].created_at,
-    updatedAt: result.recordset[0].updated_at,
-  };
+  return userResult[0];
 }
