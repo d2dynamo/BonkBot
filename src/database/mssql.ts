@@ -30,7 +30,7 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
       database: dbt!,
       port,
       options: {
-        appName: "bonk_bot_service",
+        appName: "bonk_bot_discord",
         trustServerCertificate: true,
         connectTimeout: 5000,
       },
