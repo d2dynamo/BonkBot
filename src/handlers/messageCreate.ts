@@ -41,11 +41,6 @@ export default async (message: Message) => {
 
   const matchedGamerWords = await checkForGamerWords(message);
   if (matchedGamerWords.length) {
-    //const totalCost = matchedGamerWords.reduce(
-    //  (acc, curr) => acc + curr.cost,
-    //  0
-    //);
-
     let totalCost = 0;
     for (let i = 0; i < matchedGamerWords.length; i++) {
       totalCost += matchedGamerWords[i].cost;
@@ -67,10 +62,7 @@ export default async (message: Message) => {
       await updateUserWallet(user.id, userWallet.balance + totalCost);
     } catch (err: any) {
       if (err.message && err.message === "Wallet not found") {
-        console.log("Wallet not found, creating new wallet.");
-
-        await createWallet(user.id);
-        await updateUserWallet(user.id, totalCost);
+        await createWallet(user.id, totalCost);
       } else {
         throw err;
       }

@@ -11,6 +11,6 @@ export default async function () {
       body: commands,
     });
   } catch (error: any) {
-    console.log(error);
+    console.log("Error when registering commands:", error);
   }
 }

@@ -20,8 +20,6 @@ export default {
       return;
     }
 
-    console.log("user", user);
-
     const userWallet = await getUserWallet(parseUserId(user.id));
 
     if (!userWallet) {

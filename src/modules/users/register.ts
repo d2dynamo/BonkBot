@@ -17,7 +17,6 @@ export default async function registerUsersFromGuild(guild: Guild) {
       if (members[j].user.bot) {
         continue;
       }
-      console.log(">> Registering user", members[j].user);
 
       try {
         await getUser(parseUserId(members[j].id));
@@ -32,10 +31,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
           }
         }
       } catch (error: any) {
-        console.log(">> Error", error.message);
         if (error.message === "User not found") {
-          console.log(">> User not found, creating user");
-
           await createUser(parseUserId(members[j].id));
 
           try {
@@ -48,6 +44,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
             }
           }
         } else {
+          console.log(">> Error", error);
           throw error;
         }
       }
