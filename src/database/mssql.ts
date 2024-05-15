@@ -19,7 +19,11 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
     return;
   }
 
-  const port = process.env.MSSQL_PORT ? +process.env.MSSQL_PORT : 1433;
+  let port = process.env.MSSQL_PORT ? +process.env.MSSQL_PORT : 1433;
+  console.log("mssqlport", port);
+  if (typeof process.env.MSSQL_PORT === "string") {
+    port = parseInt(process.env.MSSQL_PORT);
+  }
 
   dbPools.set(
     dbt,
@@ -32,7 +36,7 @@ async function initMSSQLPool(dbt: MSSQLDatabaseType): Promise<void> {
       options: {
         appName: "bonk_bot_discord",
         trustServerCertificate: true,
-        connectTimeout: 5000,
+        connectTimeout: 10000,
       },
       pool: {
         min: 4,

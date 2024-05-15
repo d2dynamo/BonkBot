@@ -13,6 +13,6 @@ esbuild
     plugins: [esbuildPluginTsc()],
   })
   .catch((err) => {
-    console.log(err);
+    console.log("esbuild error:", err);
     process.exit(1);
   });
