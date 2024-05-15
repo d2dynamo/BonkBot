@@ -1,5 +1,7 @@
 FROM node:20
 
-WORKDIR /dist
+WORKDIR /app
 
-CMD ["node","bundle.js"]
+COPY ./dist/bundle.js .
+
+CMD ["node", "bundle.js"]
