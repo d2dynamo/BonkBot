@@ -7,7 +7,7 @@
     "dev": "nodemon src/main.ts",
     "start": "ts-node src/main.ts",
     "test:linter": "eslint --ext .ts ./src",
-    "build": "node ./build.js && mkdirp ./dist && terser ./build/bundle.js --output ./dist/bundle.js",
+    "build": "node ./build.js && mkdir -p ./dist && terser ./build/bundle.js --output ./dist/bundle.js",
     "build-local": "node ./build.js && terser ./build/bundle.js --output ./dist/bundle.js"
   },
   "repository": {
