@@ -11,6 +11,7 @@ esbuild
     treeShaking: true,
     minify: false,
     plugins: [esbuildPluginTsc()],
+    external: ["better-sqlite3"],
   })
   .catch((err) => {
     console.log("esbuild error:", err);
