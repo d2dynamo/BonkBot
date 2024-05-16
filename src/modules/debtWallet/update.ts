@@ -62,7 +62,7 @@ export default async function updateUserWallet(
 ) {
   const db = drizzledb(DatabaseType.bonkDb);
 
-  const userWallet = await db.transaction(async (trx) => {
+  await db.transaction(async (trx) => {
     const walletResult = await trx
       .select()
       .from(bonkWallets)
@@ -70,7 +70,7 @@ export default async function updateUserWallet(
       .limit(1);
 
     if (walletResult.length === 0) {
-      throw new UserError("Wallet does not exist.");
+      throw new UserError("Wallet not found");
     }
 
     const wallet = walletResult[0];

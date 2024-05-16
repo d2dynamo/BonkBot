@@ -21,6 +21,10 @@ import registerUsers from "./modules/users/register";
     return;
   }
 
+  if (!process.env.SQLITE_DB_PATH) {
+    throw new Error("SQLITE_DB_PATH is not set.");
+  }
+
   client.on(Events.ClientReady, async () => {
     console.log(">> Bot started");
 

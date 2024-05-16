@@ -24,7 +24,7 @@ export default async function getUserWallet(id: UserId): Promise<DebtWallet> {
       .limit(1);
 
     if (walletResult.length === 0) {
-      throw new UserError("User does not exist.");
+      throw new UserError("Wallet not found");
     }
 
     const wallet = walletResult[0];

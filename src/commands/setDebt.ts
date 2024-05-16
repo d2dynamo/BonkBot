@@ -41,16 +41,13 @@ export default {
     }
 
     try {
-      let userWallet = await getUserWallet(user.id);
+      await getUserWallet(user.id);
 
-      if (!userWallet) {
-        await createWallet(user.id, amount.value);
-      } else {
-        await updateUserWallet(user.id, amount.value);
-      }
+      await updateUserWallet(user.id, amount.value, interaction.user.id);
     } catch (error: any) {
       if (error.message === "Wallet not found") {
-        await createWallet(user.id, amount.value);
+        await createWallet(user.id);
+        await updateUserWallet(user.id, amount.value, interaction.user.id);
       } else {
         console.error(error);
         interaction.reply("Failed to set debt");

@@ -23,7 +23,7 @@ export default async function getUser(id: UserId): Promise<User> {
     .limit(1);
 
   if (userResult.length === 0) {
-    throw new Error("User does not exist.");
+    throw new Error("User not found");
   }
 
   return userResult[0];

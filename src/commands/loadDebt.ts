@@ -29,12 +29,15 @@ export default {
     }
 
     if (typeof userWallet.balance !== "number" || userWallet.balance === 0) {
-      interaction.reply(`${user.username} har ingen skuld`);
+      interaction.reply(`${user.username} has no swear jar debt.`);
       return;
     }
 
-    interaction.reply(
-      `${user.username} är i skuld med ${userWallet.balance} kronor.`
-    );
+    const reply =
+      userWallet.balance > 666
+        ? `Uh-oh, we got a real punk here! You need to wash your mouth with soap. Your debt is ${userWallet.balance}`
+        : `${user.username} has ${userWallet.balance} in their swear jar.`;
+
+    interaction.reply(reply);
   },
 };

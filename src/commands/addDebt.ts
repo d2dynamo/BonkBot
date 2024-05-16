@@ -3,8 +3,6 @@ import getUserWallet from "../modules/debtWallet/get";
 import parseUserId from "../modules/users/userId";
 import updateUserWallet from "../modules/debtWallet/update";
 
-/* TODO: load debt for a user. If no user specified, load debt for the user who ran the command-
- */
 export default {
   data: new SlashCommandBuilder()
     .setName("bd-add")
@@ -12,7 +10,7 @@ export default {
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user to load debt for")
+        .setDescription("The user to add debt to")
         .setRequired(true)
     )
     .addNumberOption((option) =>
@@ -40,7 +38,7 @@ export default {
       return;
     }
 
-    const userWallet = await getUserWallet(parseUserId(user.id));
+    const userWallet = await getUserWallet(user.id);
 
     if (!userWallet) {
       interaction.reply("User wallet not found");
@@ -51,11 +49,12 @@ export default {
 
     if (typeof userWallet.balance === "number") {
       newBalance += userWallet.balance;
-      return;
     }
 
-    await updateUserWallet(user.id, newBalance);
+    await updateUserWallet(user.id, newBalance, interaction.user.id);
 
-    interaction.reply(`Added debt for ${user.username}`);
+    interaction.reply(
+      `Added debt for ${user.username}. New balance: ${newBalance}`
+    );
   },
 };

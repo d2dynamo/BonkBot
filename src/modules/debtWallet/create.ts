@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import drizzledb, { DatabaseType } from "../database/drizzle";
-import { users, bonkWallets, bonkWalletTransactions } from "../database/schema";
+import { users, bonkWallets } from "../database/schema";
 import { UserId } from "../../interfaces/database";
 import parseUserId from "../users/userId";
 
