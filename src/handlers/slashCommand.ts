@@ -1,6 +1,7 @@
 import { CommandInteraction } from "discord.js";
 
 import Commands from "../commands";
+import { UserError } from "../modules/errors";
 
 export default async (interaction: CommandInteraction) => {
   try {
@@ -18,6 +19,10 @@ export default async (interaction: CommandInteraction) => {
 
     command.execute(interaction);
   } catch (error: any) {
+    if (error instanceof UserError) {
+      await interaction.reply(error.message);
+      return;
+    }
     const time = Date.now();
     console.error(`Command error: ${error}|\n At:${time}`);
     await interaction.reply(`Internal bot error. At:${time}`);
