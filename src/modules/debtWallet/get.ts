@@ -29,7 +29,6 @@ export default async function getUserWallet(id: UserId): Promise<DebtWallet> {
 
     const wallet = walletResult[0];
 
-    // Get the latest transaction for the wallet
     const latestTransaction = await trx
       .select()
       .from(bonkWalletTransactions)
