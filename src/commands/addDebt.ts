@@ -1,6 +1,8 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
+
 import getUserWallet from "../modules/debtWallet/get";
 import updateUserWallet from "../modules/debtWallet/update";
+import Command from "./command";
 
 export default {
   data: new SlashCommandBuilder()

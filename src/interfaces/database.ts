@@ -37,3 +37,18 @@ export interface GamerWordPhrases {
   createdAt: number;
   updatedAt: number;
 }
+
+export interface Permissions {
+  id: number;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface UserPermissions {
+  id: number;
+  userId: UserId;
+  permissionId: number;
+  createdAt: number;
+  updatedAt: number;
+}
