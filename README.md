@@ -42,7 +42,7 @@ User permissions for who may or may not use certain commands.
 - bd-load | loads swear jar
 - bd-set | sets debt in swear jar
 - bd-add | adds to debt in swear jar
-- bd-remove | (todo) remove debt from swear jar
+- bd-remove | remove debt from swear jar
 
 # Other features
 

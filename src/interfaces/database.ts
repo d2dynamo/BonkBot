@@ -2,6 +2,7 @@ export type UserId = string;
 
 export interface User {
   id: UserId; //discord uid
+  userName: string | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -30,7 +31,7 @@ export interface GamerWord {
   updatedAt: number;
 }
 
-export interface GamerWordPhrases {
+export interface GamerWordPhrase {
   id: number;
   wordId: number;
   phrase: string;
@@ -38,17 +39,18 @@ export interface GamerWordPhrases {
   updatedAt: number;
 }
 
-export interface Permissions {
+export interface Permission {
   id: number;
   name: string;
   createdAt: number;
   updatedAt: number;
 }
 
-export interface UserPermissions {
+export interface UserPermission {
   id: number;
   userId: UserId;
   permissionId: number;
+  active: boolean;
   createdAt: number;
   updatedAt: number;
 }

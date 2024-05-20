@@ -8,6 +8,7 @@ import { sql } from "drizzle-orm";
 
 const users = sqliteTable("users", {
   id: text("id").primaryKey(), // discord user uid
+  userName: text("userName"),
   createdAt: integer("createdAt")
     .notNull()
     .default(sql`strftime('%s','now')`),
@@ -41,7 +42,7 @@ const bonkWalletTransactions = sqliteTable(
       .default(sql`strftime('%s', 'now')`),
   },
   (table) => ({
-    uniqueIdx: uniqueIndex("uniqueIdx").on(
+    uniqueIdx: uniqueIndex("walletTransactCreatedUIdx").on(
       table.id,
       table.walletId,
       table.createdAt
@@ -74,12 +75,44 @@ const gamerWordPhrases = sqliteTable("gamerWordPhrases", {
     .default(sql`strftime('%s','now')`),
 });
 
+const permissions = sqliteTable("permissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  createdAt: integer("createdAt")
+    .notNull()
+    .default(sql`strftime('%s','now')`),
+  updatedAt: integer("updatedAt")
+    .notNull()
+    .default(sql`strftime('%s','now')`),
+});
+
+const userPermissions = sqliteTable(
+  "userPermissions",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("userId").notNull(),
+    permissionId: integer("id").notNull(),
+    active: integer("active", { mode: "boolean" }).notNull(),
+    createdAt: integer("createdAt")
+      .notNull()
+      .default(sql`strftime('%s','now')`),
+    updatedAt: integer("updatedAt")
+      .notNull()
+      .default(sql`strftime('%s','now')`),
+  },
+  (table) => ({
+    uniqueIdx: uniqueIndex("userPermUIdx").on(table.userId, table.permissionId),
+  })
+);
+
 export {
   users,
   bonkWallets,
   bonkWalletTransactions,
   gamerWords,
   gamerWordPhrases,
+  permissions,
+  userPermissions,
 };
 
 export default [
@@ -88,4 +121,6 @@ export default [
   bonkWalletTransactions,
   gamerWords,
   gamerWordPhrases,
+  permissions,
+  userPermissions,
 ];

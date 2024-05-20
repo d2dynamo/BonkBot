@@ -19,7 +19,9 @@ export default async function registerUsersFromGuild(guild: Guild) {
       }
 
       try {
-        await getUser(parseUserId(members[j].id));
+        await createUser(parseUserId(members[j].id), members[j].user.username);
+
+        //await getUser(parseUserId(members[j].id));
 
         try {
           await getUserWallet(parseUserId(members[j].id));
@@ -32,7 +34,10 @@ export default async function registerUsersFromGuild(guild: Guild) {
         }
       } catch (error: any) {
         if (error.message === "User not found") {
-          await createUser(parseUserId(members[j].id));
+          await createUser(
+            parseUserId(members[j].id),
+            members[j].user.username
+          );
 
           try {
             await getUserWallet(parseUserId(members[j].id));
