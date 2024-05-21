@@ -105,31 +105,30 @@ export async function checkUserPermission(
 
   const db = drizzledb(DatabaseType.bonkDb);
 
-  let sQuery = sql`
-    ${userPermissions.userId} = ${userId} AND ${userPermissions.permissionId} = ${permission}
-    `;
+  let sQuery = buildPermissionQuery(userId, permission);
 
   const permResult = await db
     .select({
+      id: userPermissions.id,
+      userId: userPermissions.userId,
+      permissionId: userPermissions.permissionId,
       active: userPermissions.active,
     })
     .from(userPermissions)
-    .where(
-      sql`${userPermissions.userId} = ${userId} AND ${userPermissions.permissionId} = ${permission}`
-    );
+    .where(sQuery);
 
-  return permResult.length > 0 && permResult[0].active;
+  return permResult.length > 0;
 }
 
 function buildPermissionQuery(userId: UserId, perm: PermissionsEnum) {
-  let sQuery = sql`
-    ${userPermissions.userId} = ${userId} AND ${userPermissions.permissionId} = ${perm}
-    `;
-
   switch (perm) {
     case PermissionsEnum.basic:
-
-    case PermissionsEnum.admin:
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker} OR ${userPermissions.permissionId} = ${PermissionsEnum.basic})`;
     case PermissionsEnum.banker:
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker})`;
+    case PermissionsEnum.admin:
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin})`;
+    default:
+      throw new Error("Invalid permission");
   }
 }

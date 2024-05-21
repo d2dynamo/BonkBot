@@ -33,9 +33,9 @@ node ./dist bundle.js (dont forget to add your env variables)
 
 Gonna write the commands with classes or something, make it more readable and type safe.
 
-## Internal permssions
+## Implement localization
 
-User permissions for who may or may not use certain commands.
+Write commands with localization in mind. Store localization strings in yaml or json.
 
 # Commands
 
