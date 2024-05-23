@@ -1,9 +1,9 @@
-import drizzledb, { DatabaseType } from "../database/drizzle";
+import { eq, sql } from "drizzle-orm";
 
+import drizzledb, { DatabaseType } from "../database/drizzle";
 import { userPermissions, users } from "../database/schema";
 import parseUserId from "./userId";
 import { User, UserId } from "../../interfaces/database";
-import { eq, sql } from "drizzle-orm";
 
 import { PermissionsEnum } from "../permissions/permissions";
 
@@ -123,11 +123,13 @@ export async function checkUserPermission(
 function buildPermissionQuery(userId: UserId, perm: PermissionsEnum) {
   switch (perm) {
     case PermissionsEnum.basic:
-      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker} OR ${userPermissions.permissionId} = ${PermissionsEnum.basic})`;
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker} OR ${userPermissions.permissionId} = ${PermissionsEnum.basic} OR ${userPermissions.permissionId} = ${PermissionsEnum.bigHoncho})`;
     case PermissionsEnum.banker:
-      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker})`;
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker} OR ${userPermissions.permissionId} = ${PermissionsEnum.bigHoncho})`;
     case PermissionsEnum.admin:
-      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin})`;
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.bigHoncho})`;
+    case PermissionsEnum.bigHoncho:
+      return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND ${userPermissions.permissionId} = ${PermissionsEnum.bigHoncho}`;
     default:
       throw new Error("Invalid permission");
   }

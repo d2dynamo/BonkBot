@@ -26,7 +26,7 @@ type SlashCommandOptions =
 interface CommandOptions {
   name: string;
   description: string;
-  options: SlashCommandOptions[];
+  options: SlashCommandOptions[] | null;
   execute: (interaction: CommandInteraction) => Promise<void>;
   requiredPermission?: PermissionsEnum;
 }
@@ -99,14 +99,18 @@ export default class Command {
       ],
     ]);
 
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i];
+    if (options) {
+      for (let i = 0; i < options.length; i++) {
+        const option = options[i];
 
-      const handler = optionHandlers.get(option.constructor.name);
-      if (handler) {
-        handler(option);
-      } else {
-        throw new Error(`Unsupported option type: ${option.constructor.name}`);
+        const handler = optionHandlers.get(option.constructor.name);
+        if (handler) {
+          handler(option);
+        } else {
+          throw new Error(
+            `Unsupported option type: ${option.constructor.name}`
+          );
+        }
       }
     }
 

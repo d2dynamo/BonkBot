@@ -1,10 +1,10 @@
+import { sql } from "drizzle-orm";
+
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { userPermissions } from "../database/schema";
-
 import { UserId } from "../../interfaces/database";
 import parseUserId from "./userId";
 import getUser from "./get";
-import { sql } from "drizzle-orm";
 
 interface permissionStatus {
   permissionId: number;

@@ -1,4 +1,5 @@
 import { Guild } from "discord.js";
+
 import getUser from "./get";
 import parseUserId from "./userId";
 import createUser from "./create";
@@ -19,9 +20,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
       }
 
       try {
-        await createUser(parseUserId(members[j].id), members[j].user.username);
-
-        //await getUser(parseUserId(members[j].id));
+        await getUser(parseUserId(members[j].id));
 
         try {
           await getUserWallet(parseUserId(members[j].id));

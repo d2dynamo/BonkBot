@@ -1,8 +1,9 @@
+import { sql } from "drizzle-orm";
+
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { users } from "../database/schema";
 import { UserId } from "../../interfaces/database";
 import parseUserId from "./userId";
-import { sql } from "drizzle-orm";
 
 /**
  * Create a new user.
