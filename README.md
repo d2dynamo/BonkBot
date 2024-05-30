@@ -29,13 +29,13 @@ node ./dist bundle.js (dont forget to add your env variables)
 
 # TODO
 
-## Use proper typescript for commands.
-
-Gonna write the commands with classes or something, make it more readable and type safe.
-
 ## Implement localization
 
 Write commands with localization in mind. Store localization strings in yaml or json.
+
+## GamerWordWatch microservice
+
+Use golang to handle gamer word watcher? (comms with grpc)
 
 # Commands
 
