@@ -4,10 +4,10 @@ import {
   SlashCommandNumberOption,
 } from "discord.js";
 
-import getUserWallet from "../modules/debtWallet/get";
-import updateUserWallet from "../modules/debtWallet/update";
-import Command from "./command";
-import { PermissionsEnum } from "../modules/permissions/permissions";
+import getUserWallet from "../../modules/debtWallet/get";
+import updateUserWallet from "../../modules/debtWallet/update";
+import Command from "../command";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");

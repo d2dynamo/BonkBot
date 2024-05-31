@@ -3,11 +3,11 @@ import {
   SlashCommandNumberOption,
   SlashCommandUserOption,
 } from "discord.js";
-import getUserWallet from "../modules/debtWallet/get";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import Command from "./command";
-import updateUserWallet from "../modules/debtWallet/update";
-import createWallet from "../modules/debtWallet/create";
+import getUserWallet from "../../modules/debtWallet/get";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import Command from "../command";
+import updateUserWallet from "../../modules/debtWallet/update";
+import createWallet from "../../modules/debtWallet/create";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");
