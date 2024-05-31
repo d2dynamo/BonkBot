@@ -22,7 +22,7 @@ async function execute(interaction: CommandInteraction) {
   }
 
   const user = interaction.options.getUser("user");
-  const permissionId = interaction.options.get("permissionId");
+  const permissionId = interaction.options.get("permission-id");
 
   if (!user) {
     interaction.reply("No user specified");
@@ -45,7 +45,7 @@ const options = [
     .setDescription("The gamer word id to add phrase to")
     .setRequired(true),
   new SlashCommandIntegerOption()
-    .setName("permissionId")
+    .setName("permission-id")
     .setDescription("The permission to set for the user.")
     .setRequired(true),
 ];

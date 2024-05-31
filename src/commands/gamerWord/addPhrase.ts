@@ -9,7 +9,7 @@ import { PermissionsEnum } from "../../modules/permissions/permissions";
 import addPhrasesToGamerWord from "../../modules/gamerWord/update";
 
 async function execute(interaction: CommandInteraction) {
-  const wordId = interaction.options.get("wordId");
+  const wordId = interaction.options.get("word-id");
 
   if (!wordId || typeof wordId.value !== "number") {
     interaction.reply("No word id specified");
@@ -30,7 +30,7 @@ async function execute(interaction: CommandInteraction) {
 
 const options = [
   new SlashCommandIntegerOption()
-    .setName("wordId")
+    .setName("word-id")
     .setDescription("The gamer word id to add phrase to")
     .setRequired(true),
   new SlashCommandStringOption()
