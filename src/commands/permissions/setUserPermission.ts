@@ -4,9 +4,9 @@ import {
   SlashCommandUserOption,
 } from "discord.js";
 
-import Command from "./command";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import { changeUserPermissions } from "../modules/users/update";
+import Command from "../command";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import { changeUserPermissions } from "../../modules/users/update";
 
 async function execute(interaction: CommandInteraction) {
   const interactor = interaction.user;
