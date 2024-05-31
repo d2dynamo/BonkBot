@@ -36,10 +36,7 @@
     "terser": "^5.31.0",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-node-externals": "^3.0.0"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "better-sqlite3": "^10.0.0",
