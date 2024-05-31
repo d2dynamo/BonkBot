@@ -3,4 +3,4 @@ test
 dist
 build
 .env
-docker-compose.yml
+docker-compose*.yml
