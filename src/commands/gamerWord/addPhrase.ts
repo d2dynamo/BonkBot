@@ -4,9 +4,9 @@ import {
   SlashCommandStringOption,
 } from "discord.js";
 
-import Command from "./command";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import addPhrasesToGamerWord from "../modules/gamerWord/update";
+import Command from "../command";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import addPhrasesToGamerWord from "../../modules/gamerWord/update";
 
 async function execute(interaction: CommandInteraction) {
   const wordId = interaction.options.get("wordId");

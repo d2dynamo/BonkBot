@@ -1,9 +1,9 @@
 import { CommandInteraction, SlashCommandUserOption } from "discord.js";
-import getUserWallet from "../modules/debtWallet/get";
-import parseUserId from "../modules/users/userId";
-import createWallet from "../modules/debtWallet/create";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import Command from "./command";
+import getUserWallet from "../../modules/debtWallet/get";
+import parseUserId from "../../modules/users/userId";
+import createWallet from "../../modules/debtWallet/create";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import Command from "../command";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");

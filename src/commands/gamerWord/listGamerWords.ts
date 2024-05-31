@@ -1,8 +1,8 @@
 import { CommandInteraction } from "discord.js";
 
-import Command from "./command";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import { listGamerWords } from "../modules/gamerWord/list";
+import Command from "../command";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import { listGamerWords } from "../../modules/gamerWord/list";
 
 async function execute(interaction: CommandInteraction) {
   const gWords = await listGamerWords();

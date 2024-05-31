@@ -3,10 +3,10 @@ import {
   SlashCommandNumberOption,
   SlashCommandUserOption,
 } from "discord.js";
-import getUserWallet from "../modules/debtWallet/get";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import Command from "./command";
-import updateUserWallet from "../modules/debtWallet/update";
+import getUserWallet from "../../modules/debtWallet/get";
+import { PermissionsEnum } from "../../modules/permissions/permissions";
+import Command from "../command";
+import updateUserWallet from "../../modules/debtWallet/update";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");
