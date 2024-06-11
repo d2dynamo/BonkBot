@@ -12,7 +12,7 @@ async function execute(interaction: CommandInteraction) {
   const interactor = interaction.user;
 
   if (!interactor) {
-    interaction.reply("No user found");
+    interaction.reply("Bullshit happened. Interactor not found.");
     return;
   }
 
@@ -30,7 +30,7 @@ async function execute(interaction: CommandInteraction) {
   }
 
   if (!permissionId || typeof permissionId.value !== "number") {
-    interaction.reply("No command id specified");
+    interaction.reply("No permission id specified");
     return;
   }
 
@@ -42,7 +42,7 @@ async function execute(interaction: CommandInteraction) {
 const options = [
   new SlashCommandUserOption()
     .setName("user")
-    .setDescription("The gamer word id to add phrase to")
+    .setDescription("The user to set the permission for.")
     .setRequired(true),
   new SlashCommandIntegerOption()
     .setName("permission-id")

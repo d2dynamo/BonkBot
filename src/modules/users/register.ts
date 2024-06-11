@@ -1,6 +1,5 @@
 import { Guild } from "discord.js";
 
-import getUser from "./get";
 import parseUserId from "./userId";
 import createUser from "./create";
 import getUserWallet from "../debtWallet/get";
@@ -20,7 +19,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
       }
 
       try {
-        await getUser(parseUserId(members[j].id));
+        await createUser(parseUserId(members[j].id), members[j].user.username);
 
         try {
           await getUserWallet(parseUserId(members[j].id));
@@ -32,25 +31,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
           }
         }
       } catch (error: any) {
-        if (error.message === "User not found") {
-          await createUser(
-            parseUserId(members[j].id),
-            members[j].user.username
-          );
-
-          try {
-            await getUserWallet(parseUserId(members[j].id));
-          } catch (error: any) {
-            if (error.message === "Wallet not found") {
-              await createWallet(parseUserId(members[j].id));
-            } else {
-              throw error;
-            }
-          }
-        } else {
-          console.log(">> Error: ", error);
-          throw error;
-        }
+        throw error;
       }
     }
   } catch (error) {
