@@ -4,8 +4,17 @@ import SetDebt from "./debt/setDebt";
 import RemoveDebt from "./debt/removeDebt";
 import ListGamerWords from "./gamerWord/listGamerWords";
 import AddPhrase from "./gamerWord/addPhrase";
+import SetUserPermission from "./permissions/setUserPermission";
 
-export { LoadDebt, AddDebt, SetDebt, RemoveDebt, ListGamerWords, AddPhrase };
+export {
+  LoadDebt,
+  AddDebt,
+  SetDebt,
+  RemoveDebt,
+  ListGamerWords,
+  AddPhrase,
+  SetUserPermission,
+};
 
 /**
  * Commands list.
@@ -17,4 +26,5 @@ export default [
   RemoveDebt,
   ListGamerWords,
   AddPhrase,
+  SetUserPermission,
 ];
