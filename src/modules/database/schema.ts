@@ -91,7 +91,7 @@ const userPermissions = sqliteTable(
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
     userId: text("userId").notNull(),
-    permissionId: integer("id").notNull(),
+    permissionId: integer("permissionId").notNull(),
     active: integer("active", { mode: "boolean" }).notNull(),
     createdAt: integer("createdAt")
       .notNull()
