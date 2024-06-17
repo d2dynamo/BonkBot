@@ -13,20 +13,28 @@ interface permissionStatus {
 
 export async function changeUserPermissions(
   userId: UserId,
-  permissionsStatus: permissionStatus[]
+  permissionsStatus: permissionStatus[] | permissionStatus
 ): Promise<boolean> {
   parseUserId(userId);
   await getUser(userId);
 
   const db = drizzledb(DatabaseType.bonkDb);
 
-  const values = permissionsStatus.map((perm) => {
-    return {
-      userId: userId,
-      permissionId: perm.permissionId,
-      active: perm.active,
-    };
-  });
+  const values = Array.isArray(permissionsStatus)
+    ? permissionsStatus.map((perm) => {
+        return {
+          userId: userId,
+          permissionId: perm.permissionId,
+          active: perm.active,
+        };
+      })
+    : [
+        {
+          userId: userId,
+          permissionId: permissionsStatus.permissionId,
+          active: permissionsStatus.active,
+        },
+      ];
 
   const result = await db
     .insert(userPermissions)
