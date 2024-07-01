@@ -2,8 +2,8 @@ import { eq, sql } from "drizzle-orm";
 
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { userPermissions, users } from "../database/schema";
-import parseUserId from "./userId";
-import { User, UserId } from "../../interfaces/database";
+import parseDiscordUID from "./userId";
+import { User, DiscordUID } from "../../interfaces/database";
 
 import { PermissionsEnum } from "../permissions/permissions";
 
@@ -22,8 +22,8 @@ interface UserWithPerms extends User {
  * @param id discord uid
  * @returns User object
  */
-export default async function getUser(id: UserId): Promise<User> {
-  parseUserId(id);
+export default async function getUser(id: DiscordUID): Promise<User> {
+  parseDiscordUID(id);
 
   const db = drizzledb(DatabaseType.bonkDb);
 
@@ -41,9 +41,9 @@ export default async function getUser(id: UserId): Promise<User> {
 }
 
 export async function getUserWithPermissions(
-  id: UserId
+  id: DiscordUID
 ): Promise<UserWithPerms> {
-  parseUserId(id);
+  parseDiscordUID(id);
 
   const db = drizzledb(DatabaseType.bonkDb);
 
@@ -98,7 +98,7 @@ export async function getUserWithPermissions(
 }
 
 export async function checkUserPermission(
-  userId: UserId,
+  userId: DiscordUID,
   permission: PermissionsEnum
 ): Promise<boolean> {
   await getUser(userId);
@@ -120,7 +120,7 @@ export async function checkUserPermission(
   return permResult.length > 0;
 }
 
-function buildPermissionQuery(userId: UserId, perm: PermissionsEnum) {
+function buildPermissionQuery(userId: DiscordUID, perm: PermissionsEnum) {
   switch (perm) {
     case PermissionsEnum.basic:
       return sql`${userPermissions.userId} = ${userId} AND ${userPermissions.active} = 1 AND (${userPermissions.permissionId} = ${PermissionsEnum.admin} OR ${userPermissions.permissionId} = ${PermissionsEnum.banker} OR ${userPermissions.permissionId} = ${PermissionsEnum.basic} OR ${userPermissions.permissionId} = ${PermissionsEnum.bigHoncho})`;

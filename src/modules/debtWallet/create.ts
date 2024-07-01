@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { users, bonkWallets } from "../database/schema";
-import { UserId } from "../../interfaces/database";
-import parseUserId from "../users/userId";
+import { DiscordUID } from "../../interfaces/database";
+import parseDiscordUID from "../users/userId";
 
 /**
  * Creates a wallet for a user with an optional starting balance.
@@ -11,8 +11,10 @@ import parseUserId from "../users/userId";
  * @param startingBalance - Initial balance of the wallet (default: 0).
  * @returns A promise that resolves to a boolean indicating success.
  */
-export default async function createWallet(userId: UserId): Promise<boolean> {
-  parseUserId(userId);
+export default async function createWallet(
+  userId: DiscordUID
+): Promise<boolean> {
+  parseDiscordUID(userId);
   const db = drizzledb(DatabaseType.bonkDb);
 
   await db.transaction(async (tx) => {

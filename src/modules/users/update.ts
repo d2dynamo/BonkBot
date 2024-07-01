@@ -2,8 +2,8 @@ import { sql } from "drizzle-orm";
 
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { userPermissions } from "../database/schema";
-import { UserId } from "../../interfaces/database";
-import parseUserId from "./userId";
+import { DiscordUID } from "../../interfaces/database";
+import parseDiscordUID from "./userId";
 import getUser from "./get";
 
 interface permissionStatus {
@@ -12,10 +12,10 @@ interface permissionStatus {
 }
 
 export async function changeUserPermissions(
-  userId: UserId,
+  userId: DiscordUID,
   permissionsStatus: permissionStatus[] | permissionStatus
 ): Promise<boolean> {
-  parseUserId(userId);
+  parseDiscordUID(userId);
   await getUser(userId);
 
   const db = drizzledb(DatabaseType.bonkDb);

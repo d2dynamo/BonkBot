@@ -1,6 +1,6 @@
 import { CommandInteraction, SlashCommandUserOption } from "discord.js";
 import getUserWallet from "../../modules/debtWallet/get";
-import parseUserId from "../../modules/users/userId";
+import parseDiscordUID from "../../modules/users/userId";
 import createWallet from "../../modules/debtWallet/create";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import Command from "../command";
@@ -12,11 +12,11 @@ async function execute(interaction: CommandInteraction) {
     return;
   }
 
-  const userWallet = await getUserWallet(parseUserId(user.id));
+  const userWallet = await getUserWallet(parseDiscordUID(user.id));
 
   if (!userWallet) {
     interaction.reply("User wallet not found");
-    createWallet(parseUserId(user.id));
+    createWallet(parseDiscordUID(user.id));
     return;
   }
 

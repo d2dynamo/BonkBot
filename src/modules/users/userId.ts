@@ -1,23 +1,17 @@
-import { UserId } from "../../interfaces/database";
+import { DiscordUID } from "../../interfaces/database";
 
 /**
- * Checks if the given input is a valid userId.
- * @param userId discord uid
+ * Parses and validates a Discord UID.
+ * @param id - The ID to validate.
+ * @returns The valid Discord UID as a string.
+ * @throws Error if the ID is invalid.
  */
-export default function parseUserId(userId: number | string): UserId {
-  let id: UserId;
-
-  if (typeof userId === "number") {
-    id = userId.toString();
-  } else if (typeof userId === "string") {
-    id = userId;
-  } else {
-    throw new Error("Invalid userId type");
+export default function parseDiscordUID(id: any): DiscordUID {
+  if (typeof id !== "string") {
+    throw new Error("Invalid Discord UID: must be a string");
   }
-
-  if (isNaN(parseInt(id))) {
-    throw new Error("Invalid userId type");
+  if (!/^\d+$/.test(id)) {
+    throw new Error("Invalid Discord UID: must contain only digits");
   }
-
   return id;
 }

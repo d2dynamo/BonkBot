@@ -8,6 +8,15 @@ declare global {
       DBOT_PUBLIC_KEY: string;
 
       SQLITE_DB_PATH: string;
+
+      /** Mongodb host n port. "mongodb://host:port" */
+      MONGO_URL: string;
+      /** ca.pem file */
+      MONGO_CA: string;
+      /** client.pem file */
+      MONGO_CERT: string;
+      /** default db name */
+      MONGO_DB_NAME: string;
     }
   }
 }

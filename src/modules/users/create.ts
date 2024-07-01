@@ -2,26 +2,26 @@ import { sql } from "drizzle-orm";
 
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { users } from "../database/schema";
-import { UserId } from "../../interfaces/database";
-import parseUserId from "./userId";
+import { DiscordUID } from "../../interfaces/database";
+import parseDiscordUID from "./userId";
+
+export default function createUser(DiscordUID: DiscordUID, userName?: string) {}
 
 /**
  * Create a new user.
- * @param discordUID - Discord UID.
+ * @param DiscordUID - Discord UID.
  * @param userName - Discord handle without tag.
  * @returns A promise that resolves to a boolean indicating success.
+ * @deprecated Old sqlite func.
  */
-export default async function createUser(
-  discordUID: UserId,
-  userName: string | null = null
-) {
-  parseUserId(discordUID);
+export async function createUserOld(DiscordUID: DiscordUID, userName?: string) {
+  parseDiscordUID(DiscordUID);
   const db = drizzledb(DatabaseType.bonkDb);
 
   const result = await db
     .insert(users)
     .values({
-      id: discordUID,
+      id: DiscordUID,
       userName: userName,
     })
     .onConflictDoUpdate({

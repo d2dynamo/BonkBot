@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { bonkWallets, bonkWalletTransactions } from "../database/schema";
-import { UserId } from "../../interfaces/database";
+import { DiscordUID } from "../../interfaces/database";
 import { UserError } from "../errors";
 
 /**
@@ -13,7 +13,7 @@ import { UserError } from "../errors";
 export async function updateWallet(
   walletId: number,
   balance: number,
-  creatorUserId: UserId
+  creatorUserId: DiscordUID
 ) {
   const db = drizzledb(DatabaseType.bonkDb);
   await db.transaction(async (tx) => {
@@ -56,9 +56,9 @@ export async function updateWallet(
  * @param balance new balance.
  */
 export default async function updateUserWallet(
-  userId: UserId,
+  userId: DiscordUID,
   balance: number,
-  creatorUserId: UserId
+  creatorUserId: DiscordUID
 ) {
   const db = drizzledb(DatabaseType.bonkDb);
 

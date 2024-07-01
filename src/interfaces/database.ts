@@ -1,56 +1,69 @@
-export type UserId = string;
+import { Document, ObjectId } from "mongodb";
 
-export interface User {
-  id: UserId; //discord uid
-  userName: string | null;
-  createdAt: number;
-  updatedAt: number;
+/** DiscordUID is a bigint/long number stored as string. */
+export type DiscordUID = string;
+
+/** Available collections in bonkbot database */
+export type bonkCollections =
+  | "users"
+  | "bonkWallets"
+  | "bonkWalletTransactions"
+  | "gamerWords"
+  | "permissions"
+  | "userPermissions";
+
+// an enum or an object to bind the collection name to the related interface?
+
+export interface User extends Document {
+  _id: DiscordUID; // Discord UID as string
+  userName?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BonkWallet {
-  id: number;
-  userId: UserId;
-  createdAt: number;
-  updatedAt: number;
+  _id: ObjectId;
+  userId: DiscordUID; // Discord UID as string
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BonkWalletTransaction {
-  id: number;
-  walletId: number;
+  _id: ObjectId;
+  walletId: ObjectId;
+  change: number;
   balance: number;
-  creatorUserId: UserId;
-  createdAt: number;
+  creatorUserId: DiscordUID; // Discord UID as string
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface GamerWord {
-  id: number;
+  _id: ObjectId;
   word: string;
   cost?: number;
   response?: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface GamerWordPhrase {
-  id: number;
-  wordId: number;
-  phrase: string;
-  createdAt: number;
-  updatedAt: number;
+  phrases: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Permission {
-  id: number;
+  _id: ObjectId;
   name: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UserPermission {
-  id: number;
-  userId: UserId;
-  permissionId: number;
+  permissionId: ObjectId;
   active: boolean;
-  createdAt: number;
-  updatedAt: number;
+  updatedAt: Date;
+}
+
+export interface UserPermissions {
+  _id: DiscordUID; // Discord UID as string
+  permissions: UserPermission[];
+  createdAt: Date;
+  updatedAt: Date;
 }

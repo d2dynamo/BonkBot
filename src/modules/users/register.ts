@@ -1,6 +1,6 @@
 import { Guild } from "discord.js";
 
-import parseUserId from "./userId";
+import parseDiscordUID from "./userId";
 import createUser from "./create";
 import getUserWallet from "../debtWallet/get";
 import createWallet from "../debtWallet/create";
@@ -21,18 +21,21 @@ export default async function registerUsersFromGuild(guild: Guild) {
       }
 
       try {
-        await createUser(parseUserId(members[j].id), members[j].user.username);
+        await createUser(
+          parseDiscordUID(members[j].id),
+          members[j].user.username
+        );
 
-        await changeUserPermissions(parseUserId(members[j].id), {
+        await changeUserPermissions(parseDiscordUID(members[j].id), {
           permissionId: 1,
           active: true,
         });
 
         try {
-          await getUserWallet(parseUserId(members[j].id));
+          await getUserWallet(parseDiscordUID(members[j].id));
         } catch (error: any) {
           if (error.message === "Wallet not found") {
-            await createWallet(parseUserId(members[j].id));
+            await createWallet(parseDiscordUID(members[j].id));
           } else {
             throw error;
           }

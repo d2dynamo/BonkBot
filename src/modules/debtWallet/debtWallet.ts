@@ -1,8 +1,8 @@
-import { UserId } from "../../interfaces/database";
+import { DiscordUID } from "../../interfaces/database";
 
 export interface DebtWallet {
   id: number;
-  userId: UserId;
+  userId: DiscordUID;
   balance: number;
   lastTransactionId: number;
   lastTransactionCreatedAt: number;

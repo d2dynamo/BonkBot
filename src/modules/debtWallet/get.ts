@@ -2,18 +2,20 @@ import { desc, eq } from "drizzle-orm";
 
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { bonkWallets, bonkWalletTransactions } from "../database/schema";
-import { UserId } from "../../interfaces/database";
+import { DiscordUID } from "../../interfaces/database";
 import { UserError } from "../errors";
 import { DebtWallet } from "./debtWallet";
-import parseUserId from "../users/userId";
+import parseDiscordUID from "../users/userId";
 
 /**
  * Get wallet for user.
  * @param id - Discord UID.
  * @returns A promise that resolves to a BonkDebtWallet object.
  */
-export default async function getUserWallet(id: UserId): Promise<DebtWallet> {
-  parseUserId(id);
+export default async function getUserWallet(
+  id: DiscordUID
+): Promise<DebtWallet> {
+  parseDiscordUID(id);
   const db = drizzledb(DatabaseType.bonkDb);
 
   const userWallet = await db.transaction(async (trx) => {
