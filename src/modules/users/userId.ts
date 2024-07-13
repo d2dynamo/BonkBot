@@ -7,11 +7,14 @@ import { DiscordUID } from "../../interfaces/database";
  * @throws Error if the ID is invalid.
  */
 export default function parseDiscordUID(id: any): DiscordUID {
-  if (typeof id !== "string") {
-    throw new Error("Invalid Discord UID: must be a string");
+  let pId = id;
+  if (typeof pId == "number") {
+    pId = pId.toString();
   }
-  if (!/^\d+$/.test(id)) {
-    throw new Error("Invalid Discord UID: must contain only digits");
+  if (typeof pId !== "string" || !/^\d+$/.test(pId)) {
+    throw new Error(
+      "Invalid Discord UID: must be a string that only contains digits"
+    );
   }
-  return id;
+  return pId as DiscordUID;
 }

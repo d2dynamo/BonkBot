@@ -3,42 +3,69 @@ import { Document, ObjectId } from "mongodb";
 /** DiscordUID is a bigint/long number stored as string. */
 export type DiscordUID = string;
 
+/** Collection document standard defs */
+export type CollectionDocs = {
+  users: User;
+  bonkWallets: BonkWallet;
+  bonkWalletTransactions: BonkWalletTransaction;
+  gamerWords: GamerWord;
+  permissions: Permission;
+  userPermissions: UserPermission;
+};
+
 /** Available collections in bonkbot database */
-export type bonkCollections =
-  | "users"
-  | "bonkWallets"
-  | "bonkWalletTransactions"
-  | "gamerWords"
-  | "permissions"
-  | "userPermissions";
+export type BonkCollections = keyof CollectionDocs;
 
-// an enum or an object to bind the collection name to the related interface?
+/** All mongodb collection doc defs should extend this with few exceptions. */
+interface DefaultDocument {
+  _id: ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export interface User extends Document {
-  _id: DiscordUID; // Discord UID as string
+/** User document. This is the only document that has a non-objectId _id
+ * @property {DiscordUID} _id - Discord UID (long number) as string.
+ */
+export interface User {
+  _id: DiscordUID;
   userName?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface BonkWallet {
+/** Only embeded doc in UserPermission */
+interface UserPerm {
+  permissionId: ObjectId;
+  active: boolean;
+  updatedAt: Date;
+}
+
+export interface UserPermission extends DefaultDocument {
   _id: ObjectId;
-  userId: DiscordUID; // Discord UID as string
+  userId: DiscordUID;
+  permissions: UserPerm[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface BonkWalletTransaction {
+export interface BonkWallet extends DefaultDocument {
+  _id: ObjectId;
+  userId: DiscordUID;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BonkWalletTransaction extends DefaultDocument {
   _id: ObjectId;
   walletId: ObjectId;
   change: number;
   balance: number;
-  creatorUserId: DiscordUID; // Discord UID as string
+  creatorUserId: DiscordUID;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface GamerWord {
+export interface GamerWord extends DefaultDocument {
   _id: ObjectId;
   word: string;
   cost?: number;
@@ -48,22 +75,9 @@ export interface GamerWord {
   updatedAt: Date;
 }
 
-export interface Permission {
+export interface Permission extends DefaultDocument {
   _id: ObjectId;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UserPermission {
-  permissionId: ObjectId;
-  active: boolean;
-  updatedAt: Date;
-}
-
-export interface UserPermissions {
-  _id: DiscordUID; // Discord UID as string
-  permissions: UserPermission[];
   createdAt: Date;
   updatedAt: Date;
 }

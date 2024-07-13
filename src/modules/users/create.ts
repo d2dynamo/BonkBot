@@ -4,8 +4,38 @@ import drizzledb, { DatabaseType } from "../database/drizzle";
 import { users } from "../database/schema";
 import { DiscordUID } from "../../interfaces/database";
 import parseDiscordUID from "./userId";
+import connectCollection from "../database/mongo";
 
-export default function createUser(DiscordUID: DiscordUID, userName?: string) {}
+/**
+ * Create or update a user.
+ * @param DiscordUID - Discord UID.
+ * @param userName - Discord handle without tag.
+ */
+export default async function saveUser(
+  DiscordUID: DiscordUID,
+  userName?: string
+): Promise<true> {
+  parseDiscordUID(DiscordUID);
+
+  const coll = await connectCollection("users");
+
+  const result = await coll.updateOne(
+    { _id: DiscordUID },
+    {
+      _id: DiscordUID,
+      userName: userName,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    { upsert: true }
+  );
+
+  if (!result.upsertedId && !result.modifiedCount) {
+    throw new Error("Failed to create or update user");
+  }
+
+  return true;
+}
 
 /**
  * Create a new user.

@@ -1,17 +1,27 @@
-import { MongoClient, type MongoClientOptions, ObjectId } from "mongodb";
-import { bonkCollections } from "../../interfaces/database";
+import {
+  MongoClient,
+  type MongoClientOptions,
+  ObjectId,
+  Collection,
+} from "mongodb";
+import { BonkCollections, CollectionDocs } from "../../interfaces/database";
 
 let client: MongoClient | null;
 
-export async function connectCollection(collection: bonkCollections) {
+/** Returns collection connection. */
+export default async function connectCollection<T extends BonkCollections>(
+  collName: T
+): Promise<Collection<CollectionDocs[T]>> {
   if (client) {
-    return client.db(process.env.MONGO_DB_NAME).collection<DocDef>(collection);
+    return client
+      .db(process.env.MONGO_DB_NAME)
+      .collection<CollectionDocs[T]>(collName);
   }
 
   let conn = await mongoClient();
-  const testColl = conn
+  return conn
     .db(process.env.MONGO_DB_NAME)
-    .collection<DocDef>(collection);
+    .collection<CollectionDocs[T]>(collName);
 }
 
 export async function getDbConnection(dbName?: string) {

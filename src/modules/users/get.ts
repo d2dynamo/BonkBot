@@ -3,9 +3,10 @@ import { eq, sql } from "drizzle-orm";
 import drizzledb, { DatabaseType } from "../database/drizzle";
 import { userPermissions, users } from "../database/schema";
 import parseDiscordUID from "./userId";
-import { User, DiscordUID } from "../../interfaces/database";
+import { User, DiscordUID, UserPermission } from "../../interfaces/database";
 
 import { PermissionsEnum } from "../permissions/permissions";
+import connectCollection from "../database/mongo";
 
 interface UserWithPerms extends User {
   permissions: {
@@ -17,81 +18,137 @@ interface UserWithPerms extends User {
 }
 
 /**
- * Get user by id or discord uid.
- * Must get user id from here if you need userId for other operations.
- * @param id discord uid
- * @returns User object
+ * Get user discord uid.
+ * @param {DiscordUID} id discord uid
+ * @returns {User} User object
  */
 export default async function getUser(id: DiscordUID): Promise<User> {
   parseDiscordUID(id);
 
-  const db = drizzledb(DatabaseType.bonkDb);
+  const coll = await connectCollection("users");
+  
+  const user = await coll.findOne({ _id: id }, { projection: { _id: 1, userName: 1, createdAt: 1, updatedAt: 1 } });
 
-  const userResult = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, id))
-    .limit(1);
-
-  if (userResult.length === 0) {
+  if (!user) {
     throw new Error("User not found");
   }
 
-  return userResult[0];
+  return user;
 }
+
+export async function checkUser(id: DiscordUID): Promise<boolean> {
+  parseDiscordUID(id);
+
+  const coll = await connectCollection("users");
+
+  const user = await coll.findOne({ _id: id }, { projection: { _id: 1 } });
+
+  return !!user;
+}
+
+
+// export async function getUserOld(id: DiscordUID): Promise<User> {
+//   parseDiscordUID(id);
+
+//   const db = drizzledb(DatabaseType.bonkDb);
+
+//   const userResult = await db
+//     .select()
+//     .from(users)
+//     .where(eq(users.id, id))
+//     .limit(1);
+
+//   if (userResult.length === 0) {
+//     throw new Error("User not found");
+//   }
+
+//   return userResult[0];
+// }
 
 export async function getUserWithPermissions(
   id: DiscordUID
 ): Promise<UserWithPerms> {
   parseDiscordUID(id);
 
-  const db = drizzledb(DatabaseType.bonkDb);
+  const coll = await connectCollection("users");
 
-  const userResult = await db
-    .select({
-      id: users.id,
-      userName: users.userName,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-      permission: {
-        id: userPermissions.permissionId,
-        active: userPermissions.active,
-        createdAt: userPermissions.createdAt,
-        updatedAt: userPermissions.updatedAt,
-      },
-    })
-    .from(users)
-    .where(eq(users.id, id))
-    .leftJoin(userPermissions, eq(users.id, userPermissions.userId))
-    .limit(1);
+  // const aggResult = await coll.aggregate([{
+  //   $match: { _id: id }
+  // },
+  // {
+  //   $project: {
+  //     _id: 1,
+  //     userName: 1,
+  //     createdAt: 1,
+  //     updatedAt: 1
+  //   }
+  // },
+  // {
+  //   $lookup: {
+  //     from: "userPermissions",
+  //     pipeline: [
+  //       {
+  //         $match: {
+  //           _id: id
+  //         }
+  //       },
+  //       {
+  //         $project: {
+  //           _id: 0,
+  //           permissionId: 1,
+  //           active: 1
+  //         }
+  //       }
+  //     ]
+  //   }
+  // }]).toArray();
 
-  if (userResult.length === 0) {
+  // write the above using the aggregate functions
+  const aggResult = await coll.aggregate([{
+    $match: { _id: id }
+  },
+  {
+    $project: {
+      _id: 1,
+      userName: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    }
+  }]).addStage<UserPermission>({
+    $lookup: {
+      from: "userPermissions",
+      let: { userId: "$_id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$userId", "$$userId"]
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            permissionId: 1,
+            active: 1
+          }
+        }
+      ],
+      as: "userPermissions"
+    }
+  })
+  .addStage({ $unwind: "$userPermissions" }).toArray();
+
+  if (aggResult.length === 0) {
     throw new Error("User not found");
   }
 
   const returnObj: UserWithPerms = {
-    id: userResult[0].id,
-    userName: userResult[0].userName,
-    createdAt: userResult[0].createdAt,
-    updatedAt: userResult[0].updatedAt,
-    permissions: userResult
-      .map((item) => {
-        if (!item.permission) {
-          return {
-            id: 0,
-            active: false,
-            createdAt: 0,
-            updatedAt: 0,
-          };
-        }
-        return {
-          id: item.permission.id,
-          active: item.permission.active,
-          createdAt: item.permission.createdAt,
-          updatedAt: item.permission.updatedAt,
-        };
-      })
-      .filter((item) => item.id !== 0),
+    _id: aggResult[0]._id,
+    userName: aggResult[0].userName,
+    createdAt: aggResult[0].createdAt,
+    updatedAt: aggResult[0].updatedAt,
+    permissions: aggResult[0].userPermissions
   };
 
   return returnObj;
