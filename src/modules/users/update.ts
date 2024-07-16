@@ -1,54 +1,43 @@
-import { sql } from "drizzle-orm";
-
-import drizzledb, { DatabaseType } from "../database/drizzle";
-import { userPermissions } from "../database/schema";
 import { DiscordUID } from "../../interfaces/database";
-import parseDiscordUID from "./userId";
 import getUser from "./get";
+import { ObjectId } from "mongodb";
+import connectCollection from "../database/mongo";
 
 interface permissionStatus {
-  permissionId: number;
+  permissionId: ObjectId;
   active: boolean;
 }
 
 export async function changeUserPermissions(
   userId: DiscordUID,
-  permissionsStatus: permissionStatus[] | permissionStatus
-): Promise<boolean> {
-  parseDiscordUID(userId);
+  permission: permissionStatus | permissionStatus[]
+) {
   await getUser(userId);
 
-  const db = drizzledb(DatabaseType.bonkDb);
+  let inp = Array.isArray(permission) ? permission : [permission];
 
-  const values = Array.isArray(permissionsStatus)
-    ? permissionsStatus.map((perm) => {
-        return {
-          userId: userId,
-          permissionId: perm.permissionId,
-          active: perm.active,
-        };
-      })
-    : [
-        {
-          userId: userId,
-          permissionId: permissionsStatus.permissionId,
-          active: permissionsStatus.active,
-        },
-      ];
+  const coll = await connectCollection("userPermissions");
 
-  const result = await db
-    .insert(userPermissions)
-    .values(values)
-    .onConflictDoUpdate({
-      target: [userPermissions.userId, userPermissions.permissionId],
-      set: {
-        active: sql`excluded.active`,
-        updatedAt: sql`strftime('%s','now')`,
+  const bulkOps = inp.map((perm) => ({
+    updateOne: {
+      filter: {
+        userId: userId,
+        permissionId: perm.permissionId,
       },
-    });
+      update: {
+        $set: {
+          active: perm.active,
+          updatedAt: new Date(),
+        },
+      },
+      upsert: true,
+    },
+  }));
 
-  if (!result) {
-    throw new Error("Failed to update permissions");
+  const result = await coll.bulkWrite(bulkOps);
+
+  if (!result.upsertedCount && !result.modifiedCount) {
+    throw Error(`failed to update permissions for user: ${userId}`);
   }
 
   return true;

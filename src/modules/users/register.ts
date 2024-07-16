@@ -6,6 +6,8 @@ import getUserWallet from "../debtWallet/get";
 import createWallet from "../debtWallet/create";
 import setUserPermission from "../../commands/permissions/setUserPermission";
 import { changeUserPermissions } from "./update";
+import { PermissionsEnum } from "../permissions/permissions";
+import { stringToObjectId } from "../database/mongo";
 
 /**
  * Register users from a guild.
@@ -26,8 +28,14 @@ export default async function registerUsersFromGuild(guild: Guild) {
           members[j].user.username
         );
 
+        const basicPermOId = await stringToObjectId(PermissionsEnum.basic);
+
+        if (!basicPermOId) {
+          continue;
+        }
+
         await changeUserPermissions(parseDiscordUID(members[j].id), {
-          permissionId: 1,
+          permissionId: basicPermOId,
           active: true,
         });
 

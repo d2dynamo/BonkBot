@@ -6,12 +6,16 @@ export default async function () {
   const rest = new REST({ version: "10" }).setToken(process.env.DBOT_TOKEN);
 
   try {
-    const response = await rest.put(
+    const response: any = await rest.put(
       Routes.applicationCommands(process.env.DBOT_APP_ID),
       {
         body: commands,
       }
     );
+
+    if (response.length) {
+      console.log(`Registered ${response.length} commands.`);
+    }
   } catch (error: any) {
     console.log("Error when registering commands:", error);
   }

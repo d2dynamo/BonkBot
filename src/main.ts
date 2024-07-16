@@ -7,6 +7,24 @@ import Commands from "./commands";
 import registerUsers from "./modules/users/register";
 
 (async () => {
+  if (process.env.NODE_ENV == "development") {
+    try {
+      // const result = await changeUserPermissions("69420", [
+      //   {
+      //     permissionId: stringToObjectIdSyncForce(PermissionsEnum.basic),
+      //     active: true,
+      //   },
+      //   {
+      //     permissionId: stringToObjectIdSyncForce(PermissionsEnum.banker),
+      //     active: true,
+      //   },
+      // ]);
+      // console.log("result", result);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   try {
     const client = new Client({
       intents: [
@@ -20,10 +38,6 @@ import registerUsers from "./modules/users/register";
     if (!process.env.DBOT_TOKEN) {
       console.error(">> No token provided");
       return;
-    }
-
-    if (!process.env.SQLITE_DB_PATH) {
-      throw new Error("SQLITE_DB_PATH is not set.");
     }
 
     client.on(Events.ClientReady, async () => {

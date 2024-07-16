@@ -33,8 +33,8 @@ export interface User {
   updatedAt: Date;
 }
 
-/** Only embeded doc in UserPermission */
-interface UserPerm {
+/** Only embeded doc in UserPermission. UserPermissions.permissions */
+export interface UserPerm {
   permissionId: ObjectId;
   active: boolean;
   updatedAt: Date;
