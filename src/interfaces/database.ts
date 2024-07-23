@@ -1,4 +1,4 @@
-import { Document, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 /** DiscordUID is a bigint/long number stored as string. */
 export type DiscordUID = string;
@@ -18,7 +18,7 @@ export type BonkCollections = keyof CollectionDocs;
 
 /** All mongodb collection doc defs should extend this with few exceptions. */
 interface DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,7 +27,7 @@ interface DefaultDocument {
  * @property {DiscordUID} _id - Discord UID (long number) as string.
  */
 export interface User {
-  _id: DiscordUID;
+  _id?: DiscordUID;
   userName?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -41,7 +41,7 @@ export interface UserPerm {
 }
 
 export interface UserPermission extends DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: DiscordUID;
   permissions: UserPerm[];
   createdAt: Date;
@@ -49,24 +49,24 @@ export interface UserPermission extends DefaultDocument {
 }
 
 export interface BonkWallet extends DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: DiscordUID;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface BonkWalletTransaction extends DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   walletId: ObjectId;
-  change: number;
-  balance: number;
+  change: number; // How much did this transaction change the wallet's current balance
+  balance: number; // Balance after this transaction
   creatorUserId: DiscordUID;
   createdAt: Date;
-  updatedAt: Date;
+  note?: string;
 }
 
 export interface GamerWord extends DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   word: string;
   cost?: number;
   response?: string;
@@ -76,7 +76,7 @@ export interface GamerWord extends DefaultDocument {
 }
 
 export interface Permission extends DefaultDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   name: string;
   createdAt: Date;
   updatedAt: Date;

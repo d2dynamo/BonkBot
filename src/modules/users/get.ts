@@ -10,7 +10,7 @@ interface UserWithPerms extends User {
 }
 
 /**
- * Get user discord uid.
+ * Get user discord uid. Also validates userid.
  * @param {DiscordUID} id discord uid
  * @returns {User} User object
  */

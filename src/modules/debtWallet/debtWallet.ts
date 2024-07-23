@@ -1,11 +1,12 @@
+import { ObjectId } from "mongodb";
 import { DiscordUID } from "../../interfaces/database";
 
 export interface DebtWallet {
-  id: number;
+  id: ObjectId;
   userId: DiscordUID;
   balance: number;
-  lastTransactionId: number;
-  lastTransactionCreatedAt: number;
-  createdAt: number;
-  updatedAt: number;
+  lastTransactionId: ObjectId;
+  lastTransactionCreatedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

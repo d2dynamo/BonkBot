@@ -1,55 +1,37 @@
-import { desc, eq } from "drizzle-orm";
-
-import drizzledb, { DatabaseType } from "../database/drizzle";
-import { bonkWallets, bonkWalletTransactions } from "../database/schema";
 import { DiscordUID } from "../../interfaces/database";
-import { UserError } from "../errors";
 import { DebtWallet } from "./debtWallet";
-import parseDiscordUID from "../users/userId";
+import connectCollection from "../database/mongo";
+import getUser from "../users/get";
+import getWalletTransactions, { latestBalance } from "./transactions";
 
-/**
- * Get wallet for user.
- * @param id - Discord UID.
- * @returns A promise that resolves to a BonkDebtWallet object.
- */
 export default async function getUserWallet(
-  id: DiscordUID
+  userId: DiscordUID
 ): Promise<DebtWallet> {
-  parseDiscordUID(id);
-  const db = drizzledb(DatabaseType.bonkDb);
+  await getUser(userId);
 
-  const userWallet = await db.transaction(async (trx) => {
-    const walletResult = await trx
-      .select()
-      .from(bonkWallets)
-      .where(eq(bonkWallets.userId, id))
-      .limit(1);
+  const coll = await connectCollection("bonkWallets");
 
-    if (walletResult.length === 0) {
-      throw new UserError("Wallet not found");
-    }
+  const walletDoc = await coll.findOne({ userId: userId });
 
-    const wallet = walletResult[0];
+  if (!walletDoc || !walletDoc._id) {
+    throw new Error(`Wallet not found for user: ${userId}`);
+  }
 
-    const latestTransaction = await trx
-      .select()
-      .from(bonkWalletTransactions)
-      .where(eq(bonkWalletTransactions.walletId, wallet.id))
-      .orderBy(desc(bonkWalletTransactions.createdAt))
-      .limit(1);
+  const transactions = await getWalletTransactions(walletDoc._id, 25);
 
-    return {
-      id: wallet.id,
-      userId: wallet.userId,
-      balance: latestTransaction.length > 0 ? latestTransaction[0].balance : 0,
-      lastTransactionId:
-        latestTransaction.length > 0 ? latestTransaction[0].id : 0,
-      lastTransactionCreatedAt:
-        latestTransaction.length > 0 ? latestTransaction[0].createdAt : 0,
-      createdAt: wallet.createdAt,
-      updatedAt: wallet.updatedAt,
-    };
-  });
+  console.log("transactions", transactions);
 
-  return userWallet;
+  let latestBal = latestBalance(transactions);
+
+  const debtWallet: DebtWallet = {
+    id: walletDoc._id,
+    userId: userId,
+    balance: latestBal,
+    lastTransactionId: transactions[0]._id!,
+    lastTransactionCreatedAt: transactions[0].createdAt,
+    createdAt: walletDoc.createdAt,
+    updatedAt: walletDoc.updatedAt,
+  };
+
+  return debtWallet;
 }
