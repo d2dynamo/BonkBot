@@ -1,8 +1,8 @@
 import { DiscordUID } from "../../interfaces/database";
-import { DebtWallet } from "./debtWallet";
+import { DebtWallet } from "./types";
 import connectCollection from "../database/mongo";
 import getUser from "../users/get";
-import getWalletTransactions, { latestBalance } from "./transactions";
+import getWalletTransactions from "./transactions";
 
 export default async function getUserWallet(
   userId: DiscordUID
@@ -17,18 +17,16 @@ export default async function getUserWallet(
     throw new Error(`Wallet not found for user: ${userId}`);
   }
 
-  const transactions = await getWalletTransactions(walletDoc._id, 25);
+  const transactions = await getWalletTransactions(walletDoc._id);
 
-  console.log("transactions", transactions);
-
-  let latestBal = latestBalance(transactions);
+  let latestBal = transactions.length > 0 ? transactions[0].balance : 0;
 
   const debtWallet: DebtWallet = {
     id: walletDoc._id,
     userId: userId,
     balance: latestBal,
-    lastTransactionId: transactions[0]._id!,
-    lastTransactionCreatedAt: transactions[0].createdAt,
+    lastTransactionId: transactions[0]?._id || null,
+    lastTransactionCreatedAt: transactions[0]?.createdAt || null,
     createdAt: walletDoc.createdAt,
     updatedAt: walletDoc.updatedAt,
   };

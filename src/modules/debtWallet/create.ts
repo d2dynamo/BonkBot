@@ -21,7 +21,8 @@ export default async function createWallet(
       $set: {
         updatedAt: new Date(),
       },
-    }
+    },
+    { upsert: true }
   );
 
   if (!result.modifiedCount && !result.upsertedCount) {

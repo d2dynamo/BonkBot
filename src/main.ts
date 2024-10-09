@@ -5,6 +5,7 @@ import EventHandler from "./handlers";
 import registerCommands from "./modules/registerCommands";
 import Commands from "./commands";
 import registerUsers from "./modules/users/register";
+import connectCollection from "./modules/database/mongo";
 
 (async () => {
   if (process.env.NODE_ENV == "development") {
@@ -26,6 +27,16 @@ import registerUsers from "./modules/users/register";
   }
 
   try {
+    const mongo = await connectCollection("permissions");
+
+    const tryFind = await mongo.findOne({ name: "basic" });
+
+    if (!tryFind) {
+      throw Error(
+        "No basic permission found. Database might be not connected."
+      );
+    }
+
     const client = new Client({
       intents: [
         GatewayIntentBits.GuildMembers,

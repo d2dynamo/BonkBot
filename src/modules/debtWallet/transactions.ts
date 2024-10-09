@@ -1,14 +1,18 @@
 import { ObjectId } from "mongodb";
-import { BonkWalletTransaction } from "../../interfaces/database";
 import connectCollection, { stringToObjectId } from "../database/mongo";
+import type { DebtWalletTransaction } from "./types";
 
 /** Calculates latest balance based on given transactions.
  *
  * @param transactions array of transactions sorted by createdAt, first item is latest transaction.
  */
 export const latestBalance = (
-  transactions: BonkWalletTransaction[]
+  transactions: DebtWalletTransaction[]
 ): number => {
+  if (!transactions || transactions.length === 0) {
+    return 0;
+  }
+
   const latestTx = transactions[0];
   const latestBal = latestTx.balance;
 
@@ -26,7 +30,7 @@ export const latestBalance = (
 
   if (calcBal != latestBal) {
     console.log(
-      `wallet ${latestTx.walletId} mismatching balance. Latest balance: ${latestBal} _id ${latestTx._id} | calculated ${calcBal} from ${transactions.length} latest transactions.`
+      `wallet ${latestTx.walletId} mismatching balance. Latest balance: ${latestBal} _id ${latestTx.id} | calculated ${calcBal} from ${transactions.length} latest transactions.`
     );
   }
 
@@ -36,12 +40,12 @@ export const latestBalance = (
 /** Get latest transactions for specified walletId.
  * First item in array will be the latest transaction.
  * @param walletId {ObjectId} wallet id
- * @param limit how many transactions to return
+ * @param limit how many transactions to return. Default = 1.
  */
 export default async function getWalletTransactions(
   walletId: string | ObjectId,
-  limit = 5
-): Promise<BonkWalletTransaction[]> {
+  limit = 1
+): Promise<DebtWalletTransaction[]> {
   const walletObjId = await stringToObjectId(walletId);
 
   if (!walletObjId) {
@@ -55,7 +59,7 @@ export default async function getWalletTransactions(
     { batchSize: 2000, limit: limit, sort: { createdAt: -1 } }
   );
 
-  const transactions: BonkWalletTransaction[] = [];
+  const transactions: DebtWalletTransaction[] = [];
 
   while (await cursor.hasNext()) {
     const doc = await cursor.next();
@@ -78,7 +82,7 @@ export default async function getWalletTransactions(
     }
 
     transactions.push({
-      _id: doc._id,
+      id: doc._id,
       walletId: doc.walletId,
       balance: doc.balance,
       change: doc.change,

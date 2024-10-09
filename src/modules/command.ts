@@ -1,3 +1,9 @@
+/* !!NOTE!!
+ * Currently the options resolver for CommandInteraction is weird and the resolvers for several options are omitted from the type definitions.
+ * AKA, interaction.options.getUser("user") is not implemented according to type definitions but
+ * interaction.options.getUser() DOES WORK. Cant be bothered to fix this so just ignore the error and keep coding.
+ */
+
 import {
   CommandInteraction,
   SlashCommandBooleanOption,
@@ -10,8 +16,8 @@ import {
   SlashCommandStringOption,
   SlashCommandUserOption,
 } from "discord.js";
-import { PermissionsEnum } from "../modules/permissions/permissions";
-import { checkUserPermission } from "../modules/users/get";
+import { PermissionsEnum } from "./permissions/permissions";
+import { checkUserPermission } from "./users/get";
 
 type SlashCommandOptions =
   | SlashCommandStringOption

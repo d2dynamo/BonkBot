@@ -3,10 +3,11 @@ import getUserWallet from "../../modules/debtWallet/get";
 import parseDiscordUID from "../../modules/users/userId";
 import createWallet from "../../modules/debtWallet/create";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import Command from "../command";
+import Command from "../../modules/command";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");
+  console.log("user get", user);
   if (!user) {
     interaction.reply("No user specified");
     return;

@@ -25,11 +25,8 @@
   },
   "homepage": "https://github.com/d2dynamo/BonkBot#readme",
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.10",
-    "@types/mssql": "^9.1.5",
     "@types/node": "^20.12.7",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.21.2",
     "esbuild": "^0.20.2",
     "esbuild-plugin-tsc": "^0.4.0",
     "eslint": "^9.1.0",
@@ -37,12 +34,10 @@
     "terser": "^5.31.0",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
-    "better-sqlite3": "^10.1.0",
-    "discord.js": "^14.12.1",
-    "drizzle-orm": "^0.30.10",
+    "discord.js": "^14.16.3",
     "mongodb": "^6.7.0"
   }
 }

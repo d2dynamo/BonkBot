@@ -1,30 +1,24 @@
-import drizzledb, { DatabaseType } from "../database/drizzle";
-import { gamerWordPhrases } from "../database/schema";
+import { ObjectId } from "mongodb";
+import connectCollection, { stringToObjectId } from "../database/mongo";
 
-/**
- * Add phrases to a gamer word.
- * @param gamerWordId The id of the gamer word.
- * @param phrases The phrases to add.
- */
 export default async function addPhrasesToGamerWord(
-  gamerWordId: number,
+  gamerWordId: ObjectId | string,
   phrases: string[]
 ) {
-  const db = drizzledb(DatabaseType.bonkDb);
+  const gwObjectId = await stringToObjectId(gamerWordId);
 
-  const values = phrases.map((phrase) => {
-    return {
-      gamerWordId: gamerWordId,
-      phrase: phrase,
-    };
-  });
+  if (!gwObjectId) {
+    throw new Error("Invalid gamerWordId");
+  }
 
-  const result = await db
-    .insert(gamerWordPhrases)
-    .values(values)
-    .onConflictDoNothing();
+  const coll = await connectCollection("gamerWords");
 
-  if (!result.changes) {
+  const result = await coll.updateOne(
+    { _id: gwObjectId },
+    { $push: { phrases: { $each: phrases } } }
+  );
+
+  if (!result.acknowledged) {
     throw new Error("Failed to add phrases to gamer word");
   }
 

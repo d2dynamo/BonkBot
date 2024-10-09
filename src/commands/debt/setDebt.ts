@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import getUserWallet from "../../modules/debtWallet/get";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import Command from "../command";
+import Command from "../../modules/command";
 import updateUserWallet from "../../modules/debtWallet/update";
 import createWallet from "../../modules/debtWallet/create";
 

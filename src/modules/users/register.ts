@@ -4,7 +4,6 @@ import parseDiscordUID from "./userId";
 import createUser from "./create";
 import getUserWallet from "../debtWallet/get";
 import createWallet from "../debtWallet/create";
-import setUserPermission from "../../commands/permissions/setUserPermission";
 import { changeUserPermissions } from "./update";
 import { PermissionsEnum } from "../permissions/permissions";
 import { stringToObjectId } from "../database/mongo";
@@ -19,6 +18,12 @@ export default async function registerUsersFromGuild(guild: Guild) {
 
     for (let j = 0; j < members.length; j++) {
       if (members[j].user.bot) {
+        continue;
+      }
+
+      const checkWallet = await getUserWallet(parseDiscordUID(members[j].id));
+
+      if (checkWallet) {
         continue;
       }
 
@@ -42,14 +47,18 @@ export default async function registerUsersFromGuild(guild: Guild) {
         try {
           await getUserWallet(parseDiscordUID(members[j].id));
         } catch (error: any) {
-          if (error.message === "Wallet not found") {
+          if ((error.message as string).includes("Wallet not found")) {
             await createWallet(parseDiscordUID(members[j].id));
           } else {
             throw error;
           }
         }
       } catch (error: any) {
-        throw error;
+        console.error(
+          `>> Error registering user: ${members[j].id} ${members[j].user.username}.`,
+          error
+        );
+        continue;
       }
     }
   } catch (error) {

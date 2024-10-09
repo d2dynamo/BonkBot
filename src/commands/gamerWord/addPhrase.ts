@@ -4,7 +4,7 @@ import {
   SlashCommandStringOption,
 } from "discord.js";
 
-import Command from "../command";
+import Command from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import addPhrasesToGamerWord from "../../modules/gamerWord/update";
 

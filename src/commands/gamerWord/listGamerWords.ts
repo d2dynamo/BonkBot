@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js";
 
-import Command from "../command";
+import Command from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import { listGamerWords } from "../../modules/gamerWord/list";
 
