@@ -7,7 +7,6 @@ import Command from "../../modules/command";
 
 async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user");
-  console.log("user get", user);
   if (!user) {
     interaction.reply("No user specified");
     return;

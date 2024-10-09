@@ -69,14 +69,9 @@ export default async function getWalletTransactions(
       continue;
     }
 
-    if (
-      !doc.change ||
-      isNaN(doc.change) ||
-      !doc.balance ||
-      isNaN(doc.balance)
-    ) {
+    if (!doc.balance || isNaN(doc.balance)) {
       console.log(
-        `Invalid transaction found. Bad 'change' or 'balance': doc ${doc._id} | change ${doc.change} | balance ${doc.balance}`
+        `Invalid transaction found. Bad or 'balance': doc ${doc._id} | balance ${doc.balance}`
       );
       continue;
     }
@@ -85,7 +80,7 @@ export default async function getWalletTransactions(
       id: doc._id,
       walletId: doc.walletId,
       balance: doc.balance,
-      change: doc.change,
+      change: doc.change || 0,
       creatorUserId: doc.creatorUserId,
       createdAt: doc.createdAt,
       note: doc.note,
