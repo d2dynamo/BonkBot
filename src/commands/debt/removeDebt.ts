@@ -34,12 +34,22 @@ async function execute(interaction: CommandInteraction) {
     return;
   }
 
-  let newBalance = userWallet.balance - amount.value;
+  let change = amount.value;
 
-  await updateUserWallet(user.id, newBalance, interaction.user.id);
+  if (typeof change !== "number") {
+    throw new Error("Amount must be a number");
+  }
+
+  if (change > 0) {
+    change = -change;
+  }
+
+  await updateUserWallet(user.id, change, interaction.user.id);
 
   interaction.reply(
-    `Removed debt for ${user.username}. New balance: ${newBalance}`
+    `Removed debt for ${user.username}. New balance: ${
+      userWallet.balance - change
+    }`
   );
 }
 

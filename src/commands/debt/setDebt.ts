@@ -29,9 +29,27 @@ async function execute(interaction: CommandInteraction) {
   }
 
   try {
-    await getUserWallet(user.id);
+    const userWallet = await getUserWallet(user.id);
 
-    await updateUserWallet(user.id, amount.value, interaction.user.id);
+    if (!userWallet) {
+      throw new Error("Wallet not found");
+    }
+
+    const target = amount.value;
+    const current = userWallet.balance;
+
+    if (typeof target !== "number") {
+      throw new Error("Amount must be a number");
+    }
+
+    let change = target;
+    if (target > current) {
+      change = target - current;
+    } else if (target < current) {
+      change = current - target;
+    }
+
+    await updateUserWallet(user.id, change, interaction.user.id);
   } catch (error: any) {
     if (error.message === "Wallet not found") {
       await createWallet(user.id);
