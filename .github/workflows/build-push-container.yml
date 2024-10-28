@@ -44,3 +44,25 @@ jobs:
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Login to server and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
+          script: |
+            echo "---metadata---"
+            echo "Tags: ${{ steps.meta.outputs.tags }}."
+            echo "Labels: ${{ steps.meta.outputs.labels }}."
+            echo ${{ secrets.GITHUB_TOKEN }}| docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            if [ "${{ github.ref_name }}" == "dev" ]; then
+              cd /services/bonkbotdev
+              docker pull ghcr.io/${{ github.repository }}:dev
+              docker compose up -d --build
+            elif [ "${{ github.ref_name }}" == "main" ]; then
+              cd /services/bonkbot
+              docker pull ghcr.io/${{ github.repository }}:main
+              docker compose up -d --build
+            fi
