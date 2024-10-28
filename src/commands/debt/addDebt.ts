@@ -37,8 +37,8 @@ async function execute(interaction: CommandInteraction) {
 
   let change = amount.value;
 
-  if (typeof change !== "number") {
-    throw new Error("Amount must be a number");
+  if (typeof change !== "number" || change < 0) {
+    throw new Error("Amount must be a positive number");
   }
 
   await updateUserWallet(user.id, change, interaction.user.id);

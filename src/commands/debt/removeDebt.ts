@@ -47,9 +47,8 @@ async function execute(interaction: CommandInteraction) {
   await updateUserWallet(user.id, change, interaction.user.id);
 
   interaction.reply(
-    `Removed debt for ${user.username}. New balance: ${
-      userWallet.balance - change
-    }`
+    `Removed debt for ${user.username}. New balance: ${(userWallet.balance +=
+      change)}`
   );
 }
 
