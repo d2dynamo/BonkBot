@@ -59,10 +59,10 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }}| docker login ghcr.io -u ${{ github.actor }} --password-stdin
             if [ "${{ github.ref_name }}" == "dev" ]; then
               cd /services/bonkbotdev
-              docker pull ghcr.io/${{ github.repository }}:dev
+              docker pull ghcr.io/bonkbot:dev
               docker compose up -d --build
             elif [ "${{ github.ref_name }}" == "main" ]; then
               cd /services/bonkbot
-              docker pull ghcr.io/${{ github.repository }}:main
+              docker pull ghcr.io/bonkbot:main
               docker compose up -d --build
             fi
