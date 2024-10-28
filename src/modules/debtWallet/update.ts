@@ -3,7 +3,7 @@ import connectCollection, { stringToObjectId } from "../database/mongo";
 import { ObjectId } from "mongodb";
 import getUser from "../users/get";
 
-export default async function updateWallet(
+export async function updateWallet(
   walletId: string | ObjectId,
   change: number,
   instigatorId: DiscordUID

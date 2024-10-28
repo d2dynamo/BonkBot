@@ -4,7 +4,7 @@ import { GamerWordDefaultResponse } from "../constants/defaults";
 import emojis from "../constants/emojis";
 import listAndBuildGamerWords from "../modules/gamerWord/list";
 import getUserWallet from "../modules/debtWallet/get";
-import updateUserWallet from "../modules/debtWallet/update";
+import { updateUserWallet } from "../modules/debtWallet/update";
 import createWallet from "../modules/debtWallet/create";
 
 let lastPing = Date.now();
