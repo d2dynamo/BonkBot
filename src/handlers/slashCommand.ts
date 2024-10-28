@@ -7,8 +7,6 @@ export default async (interaction: CommandInteraction) => {
   try {
     const commandName = interaction.commandName;
 
-    console.log(">> Executing Command:", commandName);
-
     const command = Commands.find(
       (command) => command.data.name === commandName
     );
