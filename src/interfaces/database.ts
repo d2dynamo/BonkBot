@@ -26,6 +26,7 @@ interface DefaultDocument {
  * @property {DiscordUID} _id - Discord UID (long number) as string.
  */
 export interface User {
+  _id: string;
   userName?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -73,4 +74,9 @@ export interface Permission extends DefaultDocument {
   name: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface GuildGamerWords extends DefaultDocument {
+  guildId: DiscordUID;
+  gamerWordIds: number[];
 }
