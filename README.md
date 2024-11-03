@@ -29,6 +29,14 @@ node ./dist bundle.js (dont forget to add your env variables)
 
 # TODO
 
+## Guild based config.
+
+Which means gamer words and wallets need guild binds.
+
+## GamerWordCollections
+
+Select server gamer words based on collection ex: "Hate Speech" selects hate speech worsd for the server.
+
 ## Implement localization
 
 Write commands with localization in mind. Store localization strings in yaml or json.
