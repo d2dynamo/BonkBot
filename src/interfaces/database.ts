@@ -62,6 +62,7 @@ export interface BonkWalletTransaction extends DefaultDocument {
 }
 
 export interface GamerWord extends DefaultDocument {
+  collectionId: ObjectId;
   word: string;
   cost?: number;
   response?: string;
@@ -79,4 +80,8 @@ export interface Permission extends DefaultDocument {
 export interface GuildGamerWords extends DefaultDocument {
   guildId: DiscordUID;
   gamerWordIds: number[];
+}
+
+export interface GamerWordCollection extends DefaultDocument {
+  name: string; 
 }
