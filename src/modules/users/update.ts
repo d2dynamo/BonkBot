@@ -1,43 +1,35 @@
-import { DiscordUID } from "../../interfaces/database";
-import getUser from "./get";
-import { ObjectId } from "mongodb";
+import { getUserDUID } from "./get";
 import connectCollection from "../database/mongo";
-
-interface permissionStatus {
-  permissionId: ObjectId;
-  active: boolean;
-}
+import { UserPerm } from "../../interfaces/database";
 
 export async function changeUserPermissions(
-  userId: DiscordUID,
-  permission: permissionStatus | permissionStatus[]
+  discordUID: string,
+  guildId: string,
+  permission: UserPerm | UserPerm[]
 ) {
-  await getUser(userId);
+  const user = await getUserDUID(discordUID, guildId);
 
   let inp = Array.isArray(permission) ? permission : [permission];
 
   const coll = await connectCollection("userPermissions");
 
-  const bulkOps = inp.map((perm) => ({
-    updateOne: {
-      filter: {
-        userId: userId,
-        permissionId: perm.permissionId,
-      },
-      update: {
-        $set: {
-          active: perm.active,
-          updatedAt: new Date(),
-        },
-      },
-      upsert: true,
+  const result = await coll.updateOne(
+    {
+      userId: user._id,
     },
-  }));
-
-  const result = await coll.bulkWrite(bulkOps);
+    {
+      $addToSet: {
+        permissions: { $each: inp },
+      },
+      $set: {
+        updatedAt: new Date(),
+      },
+    },
+    { upsert: true }
+  );
 
   if (!result.upsertedCount && !result.modifiedCount) {
-    throw Error(`failed to update permissions for user: ${userId}`);
+    throw Error(`failed to update permissions for user: ${user._id}`);
   }
 
   return true;

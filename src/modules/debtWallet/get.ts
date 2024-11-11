@@ -1,7 +1,7 @@
 import { DiscordUID } from "../../interfaces/database";
 import { DebtWallet } from "./types";
 import connectCollection from "../database/mongo";
-import getUser, { checkUser } from "../users/get";
+import { checkUser } from "../users/get";
 import getWalletTransactions from "./transactions";
 
 export default async function getUserWallet(

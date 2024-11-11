@@ -1,48 +1,79 @@
 import parseDiscordUID from "./userId";
 import { User, DiscordUID, UserPerm } from "../../interfaces/database";
 
-import { PermissionsEnum } from "../permissions/permissions";
 import connectCollection, { stringToObjectId } from "../database/mongo";
 import { ObjectId } from "mongodb";
 
-interface UserWithPerms extends User {
+interface UserWithPerms extends Omit<User, "discordId" | "guildId"> {
+  _id: ObjectId;
   permissions: UserPerm[];
 }
 
+interface GetUserDUID extends Omit<User, "discordId" | "guildId"> {
+  _id: ObjectId;
+}
+
 /**
- * Get user discord uid. Also validates userid.
+ * Get user with discord uid.
  * @param {DiscordUID} id discord uid
+ * @param {string} gid guild id
  * @returns {User} User object
  */
-export default async function getUser(id: DiscordUID): Promise<User> {
+export async function getUserDUID(
+  id: DiscordUID,
+  gid: string
+): Promise<GetUserDUID> {
   parseDiscordUID(id);
 
   const coll = await connectCollection("users");
 
   const user = await coll.findOne(
-    { _id: id },
-    { projection: { _id: 1, userName: 1, createdAt: 1, updatedAt: 1 } }
+    { discordId: id, guildId: gid },
+    {
+      projection: {
+        _id: 1,
+        userName: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    }
   );
 
-  if (!user) {
+  if (!user || !user._id) {
     throw new Error("User not found");
   }
 
   return user;
 }
 
-export async function checkUser(id: DiscordUID): Promise<boolean> {
+/**
+ * Check if user exists with discord uid.
+ * @param {DiscordUID} id discord uid
+ * @param {string} gid guild id
+ * @returns {boolean} true if user exists
+ */
+export async function checkUserDUID(
+  id: DiscordUID,
+  gid: string
+): Promise<boolean> {
   parseDiscordUID(id);
 
   const coll = await connectCollection("users");
 
-  const user = await coll.findOne({ _id: id }, { projection: { _id: 1 } });
+  const user = await coll.findOne({ discordId: id, guildId: gid });
 
   return !!user;
 }
 
-export async function getUserWithPermissions(
-  id: DiscordUID
+/**
+ * Get user with permissions.
+ * @param {DiscordUID} id discord uid
+ * @param {string} gid guild id
+ * @returns {UserWithPerms} User object with permissions
+ */
+export async function getUserWithPermissionsDUID(
+  id: DiscordUID,
+  gid: string
 ): Promise<UserWithPerms> {
   parseDiscordUID(id);
 
@@ -51,7 +82,7 @@ export async function getUserWithPermissions(
   const aggResult = await coll
     .aggregate([
       {
-        $match: { _id: id },
+        $match: { discordId: id, guildId: gid },
       },
       {
         $project: {
@@ -101,11 +132,12 @@ export async function getUserWithPermissions(
   return returnObj;
 }
 
-export async function checkUserPermission(
+export async function checkUserPermissionDUID(
   userId: DiscordUID,
+  gid: string,
   permId: string | ObjectId
 ): Promise<boolean> {
-  await getUser(userId);
+  const user = await getUserDUID(userId, gid);
 
   const coll = await connectCollection("userPermissions");
 
@@ -116,8 +148,12 @@ export async function checkUserPermission(
 
   const permResult = await coll.findOne(
     {
+      userId: user._id,
       permissions: {
-        $elemMatch: { permissionId: { $eq: permOId }, active: { $eq: true } },
+        $elemMatch: {
+          permissionId: { $eq: permOId },
+          active: { $eq: true },
+        },
       },
     },
     {

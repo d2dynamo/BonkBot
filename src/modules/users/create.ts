@@ -5,10 +5,12 @@ import connectCollection from "../database/mongo";
 /**
  * Create or update a user.
  * @param DiscordUID - Discord UID.
+ * @param guilId - Guild ID.
  * @param userName - Discord handle without tag.
  */
 export default async function saveUser(
   DiscordUID: DiscordUID,
+  guilId: string,
   userName?: string
 ): Promise<true> {
   parseDiscordUID(DiscordUID);
@@ -16,10 +18,11 @@ export default async function saveUser(
   const coll = await connectCollection("users");
 
   const result = await coll.updateOne(
-    { _id: DiscordUID },
+    { discordId: DiscordUID, guildId: guilId },
     {
       $set: {
-        _id: DiscordUID,
+        discordId: DiscordUID,
+        guildId: guilId,
         userName: userName,
         updatedAt: new Date(),
       },

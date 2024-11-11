@@ -65,7 +65,7 @@ import connectCollection from "./modules/database/mongo";
       const guilds = await client.guilds.fetch();
       console.log(">> Fetched guilds", guilds.size);
       guilds.forEach(async (guild) => {
-        console.log(">> Guild", guild.name);
+        console.log(">> Guild", guild.name, guild.id, typeof guild.id);
         const g = await guild.fetch();
         await registerUsers(g);
       });

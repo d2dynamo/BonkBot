@@ -27,6 +27,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
         try {
           await createUser(
             parseDiscordUID(members[j].id),
+            guild.id,
             members[j].user.username
           );
 
@@ -36,10 +37,14 @@ export default async function registerUsersFromGuild(guild: Guild) {
             continue;
           }
 
-          await changeUserPermissions(parseDiscordUID(members[j].id), {
-            permissionId: basicPermOId,
-            active: true,
-          });
+          await changeUserPermissions(
+            parseDiscordUID(members[j].id),
+            guild.id,
+            {
+              permissionId: basicPermOId,
+              active: true,
+            }
+          );
 
           try {
             await getUserWallet(parseDiscordUID(members[j].id));

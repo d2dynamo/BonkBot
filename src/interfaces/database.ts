@@ -11,6 +11,8 @@ export type CollectionDocs = {
   gamerWords: GamerWord;
   permissions: Permission;
   userPermissions: UserPermission;
+  gamerWordCollections: GamerWordCollection;
+  guilds: Guild;
 };
 
 /** Available collections in bonkbot database */
@@ -18,45 +20,39 @@ export type BonkCollections = keyof CollectionDocs;
 
 /** All mongodb collection doc defs should extend this with few exceptions. */
 interface DefaultDocument {
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-/** User document. This is the only document that has a non-objectId _id
- * @property {DiscordUID} _id - Discord UID (long number) as string.
- */
-export interface User {
-  _id: string;
-  userName?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** User document.
+ * @property {DiscordUID} discordId - Discord UID (long number) as string.
+ */
+export interface User extends DefaultDocument {
+  discordId: DiscordUID;
+  guildId: string;
+  userName?: string;
 }
 
 /** Only embeded doc in UserPermission. UserPermissions.permissions */
 export interface UserPerm {
   permissionId: ObjectId;
   active: boolean;
-  updatedAt: Date;
 }
 
 export interface UserPermission extends DefaultDocument {
-  userId: DiscordUID;
+  userId: ObjectId;
   permissions: UserPerm[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface BonkWallet extends DefaultDocument {
-  userId: DiscordUID;
-  createdAt: Date;
-  updatedAt: Date;
+  userId: ObjectId;
 }
 
-export interface BonkWalletTransaction extends DefaultDocument {
+export interface BonkWalletTransaction {
   walletId: ObjectId;
   change: number; // How much did this transaction change the wallet's current balance
   balance: number; // Balance after this transaction
-  creatorUserId: DiscordUID;
+  creatorUserId: ObjectId;
   createdAt: Date;
   note?: string;
 }
@@ -67,21 +63,22 @@ export interface GamerWord extends DefaultDocument {
   cost?: number;
   response?: string;
   phrases: string[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface Permission extends DefaultDocument {
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface GuildGamerWords extends DefaultDocument {
-  guildId: DiscordUID;
+  guildId: ObjectId;
   gamerWordIds: number[];
 }
 
 export interface GamerWordCollection extends DefaultDocument {
-  name: string; 
+  name: string;
+}
+
+export interface Guild extends DefaultDocument {
+  discordId: string;
+  name: string;
 }
