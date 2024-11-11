@@ -1,1 +1,1 @@
-export const GamerWordDefaultResponse = "Ajsing bajsing, gå tvätta din mun"; // Do not put period here.
+export const GamerWordDefaultResponse = "Bad user, go wash your mouth"; // Do not put period here.

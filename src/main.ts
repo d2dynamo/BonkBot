@@ -82,7 +82,7 @@ import connectCollection from "./modules/database/mongo";
         EventHandler.slashCommand(interaction);
         return;
       }
-      console.log(">> Interaction", interaction);
+      console.log(">> Interaction weird", interaction);
     });
 
     client.login(process.env.DBOT_TOKEN);

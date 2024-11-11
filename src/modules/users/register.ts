@@ -2,8 +2,8 @@ import { Guild } from "discord.js";
 
 import parseDiscordUID from "./userId";
 import createUser from "./create";
-import getUserWallet from "../debtWallet/get";
-import createWallet from "../debtWallet/create";
+import { getUserWallet } from "../debtWallet/get";
+import { createWallet } from "../debtWallet/create";
 import { changeUserPermissions } from "./update";
 import { PermissionsEnum } from "../permissions/permissions";
 import { stringToObjectId } from "../database/mongo";
@@ -22,9 +22,12 @@ export default async function registerUsersFromGuild(guild: Guild) {
       }
 
       try {
-        await getUserWallet(parseDiscordUID(members[j].id));
+        await getUserWallet(parseDiscordUID(members[j].id), guild.id);
       } catch (error: any) {
-        try {
+        if ((error.message as string).includes("Wallet not found")) {
+          await createWallet(parseDiscordUID(members[j].id), guild.id);
+          continue;
+        } else if ((error.message as string).includes("User not found")) {
           await createUser(
             parseDiscordUID(members[j].id),
             guild.id,
@@ -34,7 +37,7 @@ export default async function registerUsersFromGuild(guild: Guild) {
           const basicPermOId = await stringToObjectId(PermissionsEnum.basic);
 
           if (!basicPermOId) {
-            continue;
+            throw Error(">> Error getting basic permission object id");
           }
 
           await changeUserPermissions(
@@ -46,21 +49,9 @@ export default async function registerUsersFromGuild(guild: Guild) {
             }
           );
 
-          try {
-            await getUserWallet(parseDiscordUID(members[j].id));
-          } catch (error: any) {
-            if ((error.message as string).includes("Wallet not found")) {
-              await createWallet(parseDiscordUID(members[j].id));
-            } else {
-              throw error;
-            }
-          }
-        } catch (error: any) {
-          console.error(
-            `>> Error registering user: ${members[j].id} ${members[j].user.username}.`,
-            error
-          );
-          continue;
+          await createWallet(parseDiscordUID(members[j].id), guild.id);
+        } else {
+          throw error;
         }
       }
     }

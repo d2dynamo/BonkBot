@@ -1,35 +1,47 @@
 import {
+  ApplicationCommandOptionType,
   CommandInteraction,
   SlashCommandNumberOption,
   SlashCommandUserOption,
 } from "discord.js";
-import getUserWallet from "../../modules/debtWallet/get";
+
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import Command from "../../modules/command";
 import { updateUserWallet } from "../../modules/debtWallet/update";
-import createWallet from "../../modules/debtWallet/create";
+import parseDiscordUID from "../../modules/users/userId";
+import { getUserWallet } from "../../modules/debtWallet/get";
+import { createWallet } from "../../modules/debtWallet/create";
 
-async function execute(interaction: CommandInteraction) {
-  const user = interaction.options.getUser("user");
-  if (!user) {
-    interaction.reply("No user specified");
+async function execute(
+  interaction: CommandInteraction,
+  interactorDID: string,
+  guildDID: string
+) {
+  const userOpt = interaction.options.get("user");
+  if (
+    !userOpt ||
+    userOpt.type !== ApplicationCommandOptionType.User ||
+    !userOpt.user
+  ) {
+    interaction.reply("No user specified.");
     return;
   }
+
+  const userDID = parseDiscordUID(userOpt.user.id);
 
   const amount = interaction.options.get("amount");
 
-  if (!amount) {
-    interaction.reply("No amount specified");
-    return;
-  }
-
-  if (typeof amount.value !== "number") {
-    interaction.reply("Amount must be a number");
+  if (
+    !amount ||
+    amount.type !== ApplicationCommandOptionType.Number ||
+    typeof amount.value !== "number"
+  ) {
+    interaction.reply("Missing amount option. Or amount is not a number.");
     return;
   }
 
   try {
-    const userWallet = await getUserWallet(user.id);
+    const userWallet = await getUserWallet(userDID, guildDID);
 
     if (!userWallet) {
       throw new Error("Wallet not found");
@@ -49,19 +61,25 @@ async function execute(interaction: CommandInteraction) {
       change = current - target;
     }
 
-    await updateUserWallet(user.id, change, interaction.user.id);
+    const note = interaction.options.get("note", false);
+
+    await updateUserWallet(
+      userDID,
+      guildDID,
+      interactorDID,
+      change,
+      typeof note === "string" ? note : undefined
+    );
   } catch (error: any) {
     if (error.message === "Wallet not found") {
-      await createWallet(user.id);
-      await updateUserWallet(user.id, amount.value, interaction.user.id);
+      await createWallet(userDID, guildDID);
+      await updateUserWallet(userDID, guildDID, interactorDID, amount.value);
     } else {
-      console.error(error);
-      interaction.reply("Failed to set debt");
-      return;
+      throw error;
     }
   }
 
-  interaction.reply(`Set debt for ${user.username} to ${amount.value}`);
+  interaction.reply(`Set debt for ${userOpt.user.username} to ${amount.value}`);
 }
 
 const options = [

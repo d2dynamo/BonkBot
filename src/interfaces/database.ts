@@ -50,7 +50,7 @@ export interface BonkWallet extends DefaultDocument {
 
 export interface BonkWalletTransaction {
   walletId: ObjectId;
-  change: number; // How much did this transaction change the wallet's current balance
+  change: number; // How much did this transaction change the wallet's balance
   balance: number; // Balance after this transaction
   creatorUserId: ObjectId;
   createdAt: Date;

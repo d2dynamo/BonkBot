@@ -1,22 +1,24 @@
 import { DiscordUID } from "../../interfaces/database";
 import { DebtWallet } from "./types";
 import connectCollection from "../database/mongo";
-import { checkUser } from "../users/get";
+import { getUser } from "../users/get";
 import getWalletTransactions from "./transactions";
 
-export default async function getUserWallet(
-  userId: DiscordUID
+export async function getUserWallet(
+  userIdDID: DiscordUID,
+  guildIdDID: string
 ): Promise<DebtWallet> {
-  if (!(await checkUser(userId))) {
-    throw new Error(`User not found: ${userId}`);
+  const user = await getUser(userIdDID, guildIdDID);
+  if (!user) {
+    throw new Error(`User not found: ${userIdDID}|${guildIdDID}`);
   }
 
   const coll = await connectCollection("bonkWallets");
 
-  const walletDoc = await coll.findOne({ userId: userId });
+  const walletDoc = await coll.findOne({ userId: user._id });
 
   if (!walletDoc || !walletDoc._id) {
-    throw new Error(`Wallet not found for user: ${userId}`);
+    throw new Error(`Wallet not found for user: ${userIdDID}|${guildIdDID}`);
   }
 
   const transactions = await getWalletTransactions(walletDoc._id);
@@ -25,7 +27,7 @@ export default async function getUserWallet(
 
   const debtWallet: DebtWallet = {
     id: walletDoc._id,
-    userId: userId,
+    userId: user._id,
     balance: latestBal,
     lastTransactionId: transactions[0]?.id || null,
     lastTransactionCreatedAt: transactions[0]?.createdAt || null,

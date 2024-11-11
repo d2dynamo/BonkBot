@@ -3,7 +3,7 @@ import { DiscordUID } from "../../interfaces/database";
 
 export interface DebtWallet {
   id: ObjectId;
-  userId: DiscordUID;
+  userId: ObjectId;
   balance: number;
   lastTransactionId: ObjectId | null;
   lastTransactionCreatedAt: Date | null;
@@ -16,7 +16,7 @@ export interface DebtWalletTransaction {
   walletId: ObjectId;
   balance: number;
   change: number;
-  creatorUserId: string;
+  creatorUserId: ObjectId;
   createdAt: Date;
   note?: string;
 }

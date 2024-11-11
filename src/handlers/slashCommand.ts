@@ -17,7 +17,7 @@ export default async (interaction: CommandInteraction) => {
       return;
     }
 
-    command.execute(interaction);
+    await command.exec(interaction);
   } catch (error: any) {
     if (error instanceof UserError) {
       await interaction.reply(error.message);

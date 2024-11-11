@@ -29,30 +29,39 @@ type SlashCommandOptions =
   | SlashCommandMentionableOption
   | SlashCommandNumberOption;
 
-interface CommandOptions {
+export type CommandExecute = (
+  interaction: CommandInteraction,
+  interactorId: string,
+  guildId: string
+) => Promise<void>;
+
+interface CommandConstructor {
   name: string;
   description: string;
   options: SlashCommandOptions[] | null;
-  execute: (interaction: CommandInteraction) => Promise<void>;
+  execute: CommandExecute;
   requiredPermission?: PermissionsEnum;
 }
 
 /**
- * Command class.
- * Automatically checks if the user has the required permissions to execute the command.
+ * Standard command class.
+ * Use exec to run the command.
+ * @class
+ * @param {string} name
+ * @param {string} description
+ * @param {SlashCommandOptions[]} options
+ * @param {CommandExecute} execute command execute function
+ * @param {PermissionsEnum} requiredPermission required permission to run the command
+ *
+ * @method exec Run the command with the given interaction.
  */
 export default class Command {
   readonly data: SlashCommandBuilder;
-  readonly execute: (interaction: CommandInteraction) => Promise<void>;
+  readonly execute: CommandExecute;
   readonly requiredPermission: PermissionsEnum;
 
-  constructor({
-    name,
-    description,
-    options,
-    execute,
-    requiredPermission,
-  }: CommandOptions) {
+  constructor(cOpts: CommandConstructor) {
+    const { name, description, options, execute, requiredPermission } = cOpts;
     this.data = new SlashCommandBuilder()
       .setName(name)
       .setDescription(description);
@@ -127,14 +136,41 @@ export default class Command {
     }
   }
 
+  /**
+   * Run the command with the given interaction.
+   * @param interaction discord interaction
+   * @returns void
+   */
   async exec(interaction: CommandInteraction) {
-    const interactor = interaction.user;
+    const interactorId = interaction.user.id;
+    const guildId = interaction.guildId;
 
-    if (!(await checkUserPermission(interactor.id, this.requiredPermission))) {
+    if (!guildId) {
+      interaction.reply("Internal error.");
+      console.error("GuildId not found");
+      return;
+    }
+
+    if (!interactorId) {
+      interaction.reply("Internal error.");
+      console.error(
+        "InteractorId not found on interaction",
+        interaction.commandName
+      );
+      return;
+    }
+
+    if (
+      !(await checkUserPermission(
+        interactorId,
+        guildId,
+        this.requiredPermission
+      ))
+    ) {
       interaction.reply("You do not have permission to use this command");
       return;
     }
 
-    await this.execute(interaction);
+    await this.execute(interaction, interactorId, guildId);
   }
 }

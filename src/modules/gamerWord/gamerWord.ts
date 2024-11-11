@@ -1,6 +1,7 @@
 export default class {
   /* Phrases that will trigger the GamerWord */
   readonly phrases: string[];
+  /* Cost added to debt wallet */
   readonly cost: number;
   /* Response that will be sent when the GamerWord is triggered. */
   readonly response: string | undefined;

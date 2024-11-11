@@ -1,4 +1,4 @@
-import { getUserDUID } from "./get";
+import { getUser } from "./get";
 import connectCollection from "../database/mongo";
 import { UserPerm } from "../../interfaces/database";
 
@@ -7,7 +7,7 @@ export async function changeUserPermissions(
   guildId: string,
   permission: UserPerm | UserPerm[]
 ) {
-  const user = await getUserDUID(discordUID, guildId);
+  const user = await getUser(discordUID, guildId);
 
   let inp = Array.isArray(permission) ? permission : [permission];
 
