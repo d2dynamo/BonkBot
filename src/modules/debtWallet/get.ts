@@ -5,12 +5,12 @@ import { getUser } from "../users/get";
 import getWalletTransactions from "./transactions";
 
 export async function getUserWallet(
-  userIdDID: DiscordUID,
-  guildIdDID: string
+  userDID: DiscordUID,
+  guildDID: string
 ): Promise<DebtWallet> {
-  const user = await getUser(userIdDID, guildIdDID);
+  const user = await getUser(userDID, guildDID);
   if (!user) {
-    throw new Error(`User not found: ${userIdDID}|${guildIdDID}`);
+    throw new Error(`User not found: ${userDID}|${guildDID}`);
   }
 
   const coll = await connectCollection("bonkWallets");
@@ -18,7 +18,7 @@ export async function getUserWallet(
   const walletDoc = await coll.findOne({ userId: user._id });
 
   if (!walletDoc || !walletDoc._id) {
-    throw new Error(`Wallet not found for user: ${userIdDID}|${guildIdDID}`);
+    throw new Error(`Wallet not found for user: ${userDID}|${guildDID}`);
   }
 
   const transactions = await getWalletTransactions(walletDoc._id);

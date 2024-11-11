@@ -68,7 +68,7 @@ async function execute(
       guildDID,
       interactorDID,
       change,
-      typeof note === "string" ? note : undefined
+      typeof note?.value === "string" ? note.value : undefined
     );
   } catch (error: any) {
     if (error.message === "Wallet not found") {

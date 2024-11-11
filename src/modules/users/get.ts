@@ -4,12 +4,12 @@ import { User, DiscordUID, UserPerm } from "../../interfaces/database";
 import connectCollection, { stringToObjectId } from "../database/mongo";
 import { ObjectId } from "mongodb";
 
-interface UserWithPerms extends Omit<User, "discordId" | "guildId"> {
+interface UserWithPerms extends Omit<User, "discordId" | "guildDID"> {
   _id: ObjectId;
   permissions: UserPerm[];
 }
 
-interface GetUser extends Omit<User, "discordId" | "guildId"> {
+interface GetUser extends Omit<User, "discordId" | "guildDID"> {
   _id: ObjectId;
 }
 
@@ -25,7 +25,7 @@ export async function getUser(id: DiscordUID, gid: string): Promise<GetUser> {
   const coll = await connectCollection("users");
 
   const user = await coll.findOne(
-    { discordId: id, guildId: gid },
+    { discordId: id, guildDID: gid },
     {
       projection: {
         _id: 1,
@@ -54,7 +54,7 @@ export async function checkUser(id: DiscordUID, gid: string): Promise<boolean> {
 
   const coll = await connectCollection("users");
 
-  const user = await coll.findOne({ discordId: id, guildId: gid });
+  const user = await coll.findOne({ discordId: id, guildDID: gid });
 
   return !!user;
 }
@@ -67,7 +67,7 @@ export async function checkUser(id: DiscordUID, gid: string): Promise<boolean> {
  */
 export async function getUserWithPermissions(
   id: DiscordUID,
-  gid: string
+  gid: DiscordUID
 ): Promise<UserWithPerms> {
   parseDiscordUID(id);
 
@@ -76,7 +76,7 @@ export async function getUserWithPermissions(
   const aggResult = await coll
     .aggregate([
       {
-        $match: { discordId: id, guildId: gid },
+        $match: { discordId: id, guildDID: gid },
       },
       {
         $project: {
@@ -127,11 +127,11 @@ export async function getUserWithPermissions(
 }
 
 export async function checkUserPermission(
-  userId: DiscordUID,
-  gid: string,
+  userDID: DiscordUID,
+  guildDID: string,
   permId: string | ObjectId
 ): Promise<boolean> {
-  const user = await getUser(userId, gid);
+  const user = await getUser(userDID, guildDID);
 
   const coll = await connectCollection("userPermissions");
 
@@ -173,7 +173,7 @@ export async function getUserWOID(id: ObjectId): Promise<User> {
       projection: {
         _id: 0,
         discordId: 1,
-        guildId: 1,
+        guildDID: 1,
         userName: 1,
         createdAt: 1,
         updatedAt: 1,
@@ -222,7 +222,7 @@ export async function getUserWithPermissionsWOID(
         $project: {
           _id: 0,
           discordId: 1,
-          guildId: 1,
+          guildDID: 1,
           userName: 1,
           createdAt: 1,
           updatedAt: 1,
@@ -259,7 +259,7 @@ export async function getUserWithPermissionsWOID(
 
   const returnObj: UserWithPermsWOID = {
     discordId: aggResult[0].discordId,
-    guildId: aggResult[0].guildId,
+    guildDID: aggResult[0].guildDID,
     userName: aggResult[0].userName,
     createdAt: aggResult[0].createdAt,
     updatedAt: aggResult[0].updatedAt,

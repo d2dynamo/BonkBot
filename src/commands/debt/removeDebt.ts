@@ -64,7 +64,7 @@ async function execute(
     guildDID,
     interactorDID,
     change,
-    typeof note === "string" ? note : undefined
+    typeof note?.value === "string" ? note.value : undefined
   );
 
   interaction.reply(

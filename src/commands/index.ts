@@ -3,7 +3,6 @@ import AddDebt from "./debt/addDebt";
 import SetDebt from "./debt/setDebt";
 import RemoveDebt from "./debt/removeDebt";
 import ListGamerWords from "./gamerWord/listGamerWords";
-import AddPhrase from "./gamerWord/addPhrase";
 import SetUserPermission from "./permissions/setUserPermission";
 
 export {
@@ -12,7 +11,6 @@ export {
   SetDebt,
   RemoveDebt,
   ListGamerWords,
-  AddPhrase,
   SetUserPermission,
 };
 
@@ -25,6 +23,5 @@ export default [
   SetDebt,
   RemoveDebt,
   ListGamerWords,
-  AddPhrase,
   SetUserPermission,
 ];

@@ -5,15 +5,15 @@ import { ObjectId } from "mongodb";
 
 /**
  *
- * @param userIdDID user discord id
- * @param guildIdDID user's guild id
+ * @param userDID user discord id
+ * @param guildDID user's guild id
  * @returns boolean indicating success
  */
 export async function createWallet(
-  userIdDID: DiscordUID,
-  guildIdDID: string
+  userDID: DiscordUID,
+  guildDID: string
 ): Promise<boolean> {
-  const user = await getUser(userIdDID, guildIdDID);
+  const user = await getUser(userDID, guildDID);
 
   const coll = await connectCollection("bonkWallets");
 
@@ -35,7 +35,7 @@ export async function createWallet(
 
   if (!result.modifiedCount && !result.upsertedCount) {
     throw new Error(
-      `Failed to create new wallet for user: ${userIdDID}|${guildIdDID}`
+      `Failed to create new wallet for user: ${userDID}|${guildDID}`
     );
   }
 

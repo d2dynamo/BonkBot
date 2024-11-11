@@ -6,11 +6,11 @@ import { getUser } from "../users/get";
 export async function updateWallet(
   walletId: string | ObjectId,
   instigatorIdDID: DiscordUID,
-  guildIdDID: string,
+  guildDID: string,
   change: number,
   note?: string
 ) {
-  const instigator = await getUser(instigatorIdDID, guildIdDID);
+  const instigator = await getUser(instigatorIdDID, guildDID);
 
   const coll = await connectCollection("bonkWalletTransactions");
 
@@ -49,14 +49,14 @@ export async function updateWallet(
 }
 
 export async function updateUserWallet(
-  userIdDID: DiscordUID,
-  guildIdDID: string,
+  userDID: DiscordUID,
+  guildDID: string,
   instigatorId: DiscordUID,
   change: number,
   note?: string
 ) {
-  const user = await getUser(userIdDID, guildIdDID);
-  const instigator = await getUser(instigatorId, guildIdDID);
+  const user = await getUser(userDID, guildDID);
+  const instigator = await getUser(instigatorId, guildDID);
 
   const coll = await connectCollection("bonkWallets");
 

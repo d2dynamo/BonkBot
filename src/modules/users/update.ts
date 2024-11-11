@@ -4,10 +4,10 @@ import { UserPerm } from "../../interfaces/database";
 
 export async function changeUserPermissions(
   discordUID: string,
-  guildId: string,
+  guildDID: string,
   permission: UserPerm | UserPerm[]
 ) {
-  const user = await getUser(discordUID, guildId);
+  const user = await getUser(discordUID, guildDID);
 
   let inp = Array.isArray(permission) ? permission : [permission];
 
