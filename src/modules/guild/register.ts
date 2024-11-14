@@ -8,9 +8,7 @@ import { getGuild } from "./get";
  */
 export default async function registerGuild(guild: Guild) {
   try {
-    if (!(await getGuild(guild.id))) {
-      await saveGuild(guild.id, guild.name);
-    }
+    await saveGuild(guild.id, guild.name);
   } catch (error) {
     console.error(">> Error registering guild", error);
   }
