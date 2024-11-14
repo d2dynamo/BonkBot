@@ -1,7 +1,6 @@
 import { Guild } from "discord.js";
 
 import saveGuild from "./create";
-import { getGuild } from "./get";
 
 /**
  * Register guild to database.

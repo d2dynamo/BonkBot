@@ -48,6 +48,7 @@ interface CommandConstructor {
 /**
  * Standard command class.
  * Use exec to run the command.
+ * TODO: Implement options resolver so we can skip writing it on every command.
  * @class
  * @param {string} name
  * @param {string} description

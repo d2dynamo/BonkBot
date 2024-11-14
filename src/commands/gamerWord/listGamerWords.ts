@@ -1,25 +1,30 @@
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, EmbedBuilder } from "discord.js";
 
 import Command from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import { listGamerWordsFull } from "../../modules/gamerWord/list";
+import { botIconURL } from "../../util";
 
 async function execute(interaction: CommandInteraction) {
   const gWords = await listGamerWordsFull();
 
-  const replyStr = gWords
-    .map((gWord) => {
-      let wstr = `${gWord.word}; id:${gWord._id} :`;
-      for (let i = 0; i < gWord.phrases.length; i++) {
-        if (i === 7) {
-          wstr += "\n";
-        }
-        wstr += ` ${gWord.phrases[i]}|`;
-      }
+  const embedReply = new EmbedBuilder()
+    .setTitle("Gamer Words")
+    .setAuthor({
+      name: "Bonk Bot",
+      iconURL: botIconURL(interaction.client),
     })
-    .join("\n");
+    .setDescription("List of all gamer words");
 
-  interaction.reply(replyStr);
+  for (let i = 0; i < gWords.length; i++) {
+    const gWord = gWords[i];
+    let wstr = `${gWord.word}. id: ${gWord._id}`;
+    embedReply.addFields({ name: "Word", value: wstr });
+
+    embedReply.addFields({ name: "Phrases", value: gWord.phrases.join(", ") });
+  }
+
+  await interaction.reply({ embeds: [embedReply] });
 }
 
 export default new Command({

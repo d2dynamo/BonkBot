@@ -19,6 +19,7 @@ export default async function (
 
 async function subscribeGamerWord(interaction: AutocompleteInteraction) {
   const options = await listGamerWordsOptions();
+  console.log("options:", options);
 
   const focusedOption = interaction.options.getFocused(true);
 
@@ -30,6 +31,10 @@ async function subscribeGamerWord(interaction: AutocompleteInteraction) {
   const filteredOptions = options.filter((option) =>
     option.name.toLowerCase().includes(focusedOption.value.toLowerCase())
   );
+
+  if (!filteredOptions.length) {
+    return;
+  }
 
   await interaction.respond(filteredOptions);
 }

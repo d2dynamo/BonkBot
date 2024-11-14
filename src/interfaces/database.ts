@@ -89,5 +89,6 @@ export interface GamerWordCollection extends DefaultDocument {
 
 export interface Guild extends DefaultDocument {
   discordId: string;
+  guildOwnerDID: DiscordUID;
   name: string;
 }

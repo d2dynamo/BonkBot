@@ -6,6 +6,7 @@ import { UserError } from "../modules/errors";
 export default async (interaction: CommandInteraction) => {
   try {
     const commandName = interaction.commandName;
+    console.log(">> Command name", commandName);
 
     const command = Commands.find(
       (command) => command.data.name === commandName
@@ -24,7 +25,7 @@ export default async (interaction: CommandInteraction) => {
       return;
     }
     const time = Date.now();
-    console.error(`Command error: ${error}|\n At:${time}`);
-    await interaction.reply(`Internal bot error. At:${time}`);
+    console.error(`${time}: Error in slashCommand`, error);
+    await interaction.reply(`Internal bot error. timestamp:${time}`);
   }
 };
