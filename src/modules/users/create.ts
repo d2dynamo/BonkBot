@@ -1,5 +1,5 @@
 import { DiscordUID } from "../../interfaces/database";
-import parseDiscordUID from "./userId";
+import parseDiscordUID from "../discordUID";
 import connectCollection from "../database/mongo";
 
 /**

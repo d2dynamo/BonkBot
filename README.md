@@ -37,6 +37,11 @@ Which means gamer words and wallets need guild binds.
 
 Select server gamer words based on collection ex: "Hate Speech" selects hate speech worsd for the server.
 
+## Commands options type checking
+
+Command options need to be type checked in code and then asserted since we have to use the generic options.get() command.
+Maybe implement options resolver in Command class?
+
 ## Implement localization
 
 Write commands with localization in mind. Store localization strings in yaml or json.

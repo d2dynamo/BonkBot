@@ -10,7 +10,7 @@ import { getUserWallet } from "../../modules/debtWallet/get";
 import { updateUserWallet } from "../../modules/debtWallet/update";
 import Command from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import parseDiscordUID from "../../modules/users/userId";
+import parseDiscordUID from "../../modules/discordUID";
 
 async function execute(
   interaction: CommandInteraction,

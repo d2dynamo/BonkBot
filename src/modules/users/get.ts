@@ -1,4 +1,4 @@
-import parseDiscordUID from "./userId";
+import parseDiscordUID from "../discordUID";
 import { User, DiscordUID, UserPerm } from "../../interfaces/database";
 
 import connectCollection, { stringToObjectId } from "../database/mongo";

@@ -1,4 +1,4 @@
-import { DiscordUID } from "../../interfaces/database";
+import { DiscordUID } from "../interfaces/database";
 
 /**
  * Parses and validates a Discord UID.

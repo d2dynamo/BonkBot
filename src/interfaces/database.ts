@@ -11,8 +11,10 @@ export type CollectionDocs = {
   gamerWords: GamerWord;
   permissions: Permission;
   userPermissions: UserPermission;
-  gamerWordCollections: GamerWordCollection;
   guilds: Guild;
+  gamerWordCollections: GamerWordCollection;
+  guildGamerWords: GuildGamerWords;
+  gamerWordConfigs: GamerWordConfig;
 };
 
 /** Available collections in bonkbot database */
@@ -58,11 +60,11 @@ export interface BonkWalletTransaction {
 }
 
 export interface GamerWord extends DefaultDocument {
-  collectionId: ObjectId;
   word: string;
   cost?: number;
   response?: string;
   phrases: string[];
+  collectionId?: ObjectId;
 }
 
 export interface Permission extends DefaultDocument {
@@ -71,7 +73,14 @@ export interface Permission extends DefaultDocument {
 
 export interface GuildGamerWords extends DefaultDocument {
   guildId: ObjectId;
-  gamerWordIds: number[];
+  gamerWordIds: ObjectId[];
+}
+
+export interface GamerWordConfig extends DefaultDocument {
+  guildId: ObjectId;
+  gamerWordId: ObjectId;
+  cost?: number;
+  response?: string;
 }
 
 export interface GamerWordCollection extends DefaultDocument {

@@ -49,10 +49,10 @@ export default async (message: Message) => {
     totalCost += matchedGamerWords[i].cost;
   }
 
-  const userId = message.author.id;
-  const guildId = message.guildId;
+  const userDID = message.author.id;
+  const guildDID = message.guildId;
 
-  if (!guildId || !userId) {
+  if (!guildDID || !userDID) {
     console.error(
       "guildId or userId not found on message create",
       message.author
@@ -68,23 +68,23 @@ export default async (message: Message) => {
   );
 
   try {
-    const userWallet = await getUserWallet(userId, guildId);
+    const userWallet = await getUserWallet(userDID, guildDID);
 
     await updateWallet(
       userWallet.id,
-      userId,
-      guildId,
+      userDID,
+      guildDID,
       totalCost,
       `NoNo message: ${message.id}`
     );
   } catch (err: any) {
     if (err.message && err.message === "Wallet not found") {
-      console.log("Wallet not found, creating wallet for", userId);
-      await createWallet(userId, guildId);
+      console.log("Wallet not found, creating wallet for", userDID);
+      await createWallet(userDID, guildDID);
       await updateUserWallet(
-        userId,
-        guildId,
-        userId,
+        userDID,
+        guildDID,
+        userDID,
         totalCost,
         `NoNo message: ${message.id}`
       );

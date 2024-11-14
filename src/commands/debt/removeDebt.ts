@@ -9,7 +9,7 @@ import {
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import Command from "../../modules/command";
 import { updateUserWallet } from "../../modules/debtWallet/update";
-import parseDiscordUID from "../../modules/users/userId";
+import parseDiscordUID from "../../modules/discordUID";
 import { getUserWallet } from "../../modules/debtWallet/get";
 
 async function execute(

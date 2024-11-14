@@ -18,6 +18,8 @@ import {
 } from "discord.js";
 import { PermissionsEnum } from "./permissions/permissions";
 import { checkUserPermission } from "./users/get";
+import parseDiscordUID from "./discordUID";
+import { ObjectId } from "mongodb";
 
 type SlashCommandOptions =
   | SlashCommandStringOption
@@ -31,8 +33,8 @@ type SlashCommandOptions =
 
 export type CommandExecute = (
   interaction: CommandInteraction,
-  interactorId: string,
-  guildId: string
+  interactorDID: string,
+  guildDID: string
 ) => Promise<void>;
 
 interface CommandConstructor {
@@ -40,7 +42,7 @@ interface CommandConstructor {
   description: string;
   options: SlashCommandOptions[] | null;
   execute: CommandExecute;
-  requiredPermission?: PermissionsEnum;
+  requiredPermission?: ObjectId | string;
 }
 
 /**
@@ -51,14 +53,14 @@ interface CommandConstructor {
  * @param {string} description
  * @param {SlashCommandOptions[]} options
  * @param {CommandExecute} execute command execute function
- * @param {PermissionsEnum} requiredPermission required permission to run the command
+ * @param {ObjectId | string} requiredPermission required permission _id to run the command. Check PermissionsEnum for available permissions.
  *
- * @method exec Run the command with the given interaction.
+ * @method exec Run the command with the given interaction. This also checks for permissions.
  */
 export default class Command {
   readonly data: SlashCommandBuilder;
   readonly execute: CommandExecute;
-  readonly requiredPermission: PermissionsEnum;
+  readonly requiredPermission: ObjectId | string;
 
   constructor(cOpts: CommandConstructor) {
     const { name, description, options, execute, requiredPermission } = cOpts;
@@ -142,16 +144,16 @@ export default class Command {
    * @returns void
    */
   async exec(interaction: CommandInteraction) {
-    const interactorId = interaction.user.id;
-    const guildId = interaction.guildId;
+    const interactorDID = parseDiscordUID(interaction.user.id);
+    const guildDID = interaction.guildId;
 
-    if (!guildId) {
+    if (!guildDID) {
       interaction.reply("Internal error.");
       console.error("GuildId not found");
       return;
     }
 
-    if (!interactorId) {
+    if (!interactorDID) {
       interaction.reply("Internal error.");
       console.error(
         "InteractorId not found on interaction",
@@ -162,8 +164,8 @@ export default class Command {
 
     if (
       !(await checkUserPermission(
-        interactorId,
-        guildId,
+        interactorDID,
+        guildDID,
         this.requiredPermission
       ))
     ) {
@@ -171,6 +173,6 @@ export default class Command {
       return;
     }
 
-    await this.execute(interaction, interactorId, guildId);
+    await this.execute(interaction, interactorDID, guildDID);
   }
 }

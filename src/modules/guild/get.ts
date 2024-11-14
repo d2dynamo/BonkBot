@@ -2,9 +2,8 @@ import { ObjectId } from "mongodb";
 import connectCollection from "../database/mongo";
 import { Guild } from "../../interfaces/database";
 
-interface BonkGuild extends Guild {
-  _id: ObjectId;
-  discordId: string;
+interface BonkGuild extends Omit<Guild, "discordId"> {
+  id: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,5 +17,10 @@ export async function getGuild(gid: string): Promise<BonkGuild> {
     throw new Error("Guild not found");
   }
 
-  return guild;
+  return {
+    id: guild._id,
+    name: guild.name,
+    createdAt: guild.createdAt,
+    updatedAt: guild.updatedAt,
+  };
 }

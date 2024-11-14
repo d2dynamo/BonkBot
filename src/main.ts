@@ -6,6 +6,9 @@ import registerCommands from "./modules/registerCommands";
 import Commands from "./commands";
 import registerUsers from "./modules/users/register";
 import connectCollection from "./modules/database/mongo";
+import registerGuild from "./modules/guild/register";
+import { getGuild } from "./modules/guild/get";
+import { listGuildGamerWordsWOID } from "./modules/gamerWord/list";
 
 (async () => {
   if (process.env.NODE_ENV == "development") {
@@ -65,9 +68,14 @@ import connectCollection from "./modules/database/mongo";
       const guilds = await client.guilds.fetch();
       console.log(">> Fetched guilds", guilds.size);
       guilds.forEach(async (guild) => {
-        console.log(">> Guild", guild.name, guild.id, typeof guild.id);
+        console.log(">> Guild", guild.name, guild.id);
         const g = await guild.fetch();
+        await registerGuild(g);
         await registerUsers(g);
+
+        const bonkGuild = await getGuild(g.id);
+
+        await listGuildGamerWordsWOID(bonkGuild.id);
       });
 
       console.log(">> Ready to bonk!");
@@ -78,10 +86,16 @@ import connectCollection from "./modules/database/mongo";
     );
 
     client.on(Events.InteractionCreate, async (interaction) => {
+      if (interaction.isAutocomplete()) {
+        EventHandler.autoComplete(interaction);
+        return;
+      }
+
       if (interaction.isCommand() || interaction.isContextMenuCommand()) {
         EventHandler.slashCommand(interaction);
         return;
       }
+
       console.log(">> Interaction weird", interaction);
     });
 

@@ -4,7 +4,7 @@ import {
   SlashCommandUserOption,
 } from "discord.js";
 
-import parseDiscordUID from "../../modules/users/userId";
+import parseDiscordUID from "../../modules/discordUID";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import Command from "../../modules/command";
 import { getUserWallet } from "../../modules/debtWallet/get";

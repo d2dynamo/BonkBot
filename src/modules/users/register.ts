@@ -1,6 +1,6 @@
 import { Guild } from "discord.js";
 
-import parseDiscordUID from "./userId";
+import parseDiscordUID from "../discordUID";
 import createUser from "./create";
 import { getUserWallet } from "../debtWallet/get";
 import { createWallet } from "../debtWallet/create";
