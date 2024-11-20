@@ -5,10 +5,13 @@ import connectCollection from "../database/mongo";
 export async function subscribeGamerWord(
   guildId: DiscordUID,
   gamerWordId: ObjectId
-): Promise<void> {
+): Promise<boolean> {
   const guildsColl = await connectCollection("guilds");
 
-  const guild = await guildsColl.findOne({ discordId: guildId });
+  const guild = await guildsColl.findOne(
+    { discordId: guildId },
+    { projection: { _id: 1 } }
+  );
 
   if (!guild || !guild._id) {
     throw new Error("Guild not found");
@@ -33,14 +36,10 @@ export async function subscribeGamerWord(
     { upsert: true }
   );
 
-  if (!result.acknowledged) {
-    throw Error("Failed to subscribe gamer word");
-  }
-
-  return;
+  return result.acknowledged;
 }
 
-interface SetGamerWordConfig {
+export interface SaveGamerWordConfig {
   cost?: number;
   response?: string;
 }
@@ -48,13 +47,16 @@ interface SetGamerWordConfig {
 export async function saveGamerWordConfig(
   guildId: DiscordUID,
   gamerWordId: ObjectId,
-  config: SetGamerWordConfig
-): Promise<void> {
+  config: SaveGamerWordConfig
+): Promise<boolean> {
   const guildsColl = await connectCollection("guilds");
 
-  const guild = await guildsColl.findOne({
-    discordId: guildId,
-  });
+  const guild = await guildsColl.findOne(
+    {
+      discordId: guildId,
+    },
+    { projection: { _id: 1 } }
+  );
 
   if (!guild || !guild._id) {
     throw new Error("Guild not found");
@@ -79,9 +81,5 @@ export async function saveGamerWordConfig(
     { upsert: true }
   );
 
-  if (!result.acknowledged) {
-    throw Error("Failed to save gamer word config");
-  }
-
-  return;
+  return result.acknowledged;
 }
