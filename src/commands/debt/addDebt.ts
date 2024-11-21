@@ -8,15 +8,15 @@ import {
 
 import { getUserWallet } from "../../modules/debtWallet/get";
 import { updateUserWallet } from "../../modules/debtWallet/update";
-import Command from "../../modules/command";
+import Command, { CommandExecute } from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import parseDiscordUID from "../../modules/discordUID";
 
-async function execute(
+const execute: CommandExecute = async (
   interaction: CommandInteraction,
   interactorDID: string,
   guildDID: string
-) {
+) => {
   const userOpt = interaction.options.get("user");
   if (
     !userOpt ||
@@ -68,7 +68,7 @@ async function execute(
       change + userWallet.balance
     }`
   );
-}
+};
 
 const options = [
   new SlashCommandUserOption()

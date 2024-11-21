@@ -1,6 +1,7 @@
 import { DiscordUID } from "../../interfaces/database";
 import parseDiscordUID from "../discordUID";
 import connectCollection from "../database/mongo";
+import { ObjectId } from "mongodb";
 
 /**
  * Create or update a user.

@@ -32,6 +32,7 @@ interface DefaultDocument {
 export interface User extends DefaultDocument {
   discordId: DiscordUID;
   guildDID: DiscordUID;
+  guildId: ObjectId;
   userName?: string;
 }
 

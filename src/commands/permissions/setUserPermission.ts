@@ -1,53 +1,69 @@
 import {
+  ApplicationCommandOptionType,
   CommandInteraction,
-  SlashCommandIntegerOption,
+  SlashCommandStringOption,
   SlashCommandUserOption,
 } from "discord.js";
 
-import Command from "../../modules/command";
+import Command, { CommandExecute } from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import { changeUserPermissions } from "../../modules/users/update";
+import { stringToObjectId } from "../../modules/database/mongo";
+import parseDiscordUID from "../../modules/discordUID";
 
-async function execute(interaction: CommandInteraction) {
-  const interactor = interaction.user;
-
-  if (!interactor) {
-    interaction.reply("Bullshit happened. Interactor not found.");
+const execute: CommandExecute = async (
+  interaction: CommandInteraction,
+  interactorDID: string,
+  guildDID: string
+) => {
+  const userOpt = interaction.options.get("user");
+  if (
+    !userOpt ||
+    userOpt.type !== ApplicationCommandOptionType.User ||
+    !userOpt.user
+  ) {
+    interaction.reply("No user specified.");
     return;
   }
 
-  if (interactor.id !== "236201534470357003") {
-    interaction.reply("Only biggest honcho may run this command.");
-    return;
-  }
+  const userDID = parseDiscordUID(userOpt.user.id);
 
-  const user = interaction.options.getUser("user");
   const permissionId = interaction.options.get("permission-id");
 
-  if (!user) {
-    interaction.reply("No user specified");
-    return;
-  }
-
-  if (!permissionId || typeof permissionId.value !== "number") {
+  if (!permissionId || typeof permissionId.value !== "string") {
     interaction.reply("No permission id specified");
     return;
   }
 
-  await changeUserPermissions(user.id, [
-    { permissionId: permissionId.value, active: true },
+  const permObjId = await stringToObjectId(permissionId.value);
+
+  if (!permObjId) {
+    interaction.reply("Invalid permission");
+    return;
+  }
+
+  await changeUserPermissions(userDID, guildDID, [
+    { permissionId: permObjId, active: true },
   ]);
-}
+
+  interaction.reply("Permission set.");
+};
 
 const options = [
   new SlashCommandUserOption()
     .setName("user")
     .setDescription("The user to set the permission for.")
     .setRequired(true),
-  new SlashCommandIntegerOption()
+  new SlashCommandStringOption()
     .setName("permission-id")
     .setDescription("The permission to set for the user.")
-    .setRequired(true),
+    .setRequired(true)
+    .setChoices(
+      Object.entries(PermissionsEnum).map(([name, value]) => ({
+        name,
+        value,
+      }))
+    ),
 ];
 
 export default new Command({
@@ -55,5 +71,5 @@ export default new Command({
   description: "Set a users permission level.",
   options,
   execute,
-  requiredPermission: PermissionsEnum.bigHoncho,
+  requiredPermission: PermissionsEnum.admin,
 });

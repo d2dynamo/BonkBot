@@ -42,5 +42,5 @@ export default new Command({
   description: "Subscribe to a gamer word",
   options: null,
   execute,
-  requiredPermission: PermissionsEnum.admin,
+  requiredPermission: PermissionsEnum.basic,
 });

@@ -1,11 +1,15 @@
 import { CommandInteraction, EmbedBuilder } from "discord.js";
 
-import Command from "../../modules/command";
+import Command, { CommandExecute } from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
 import { listGamerWordsFull } from "../../modules/gamerWord/list";
 import { botIconURL } from "../../util";
 
-async function execute(interaction: CommandInteraction) {
+const execute: CommandExecute = async (
+  interaction: CommandInteraction,
+  interactorDID: string,
+  guildDID: string
+) => {
   const gWords = await listGamerWordsFull();
 
   const embedReply = new EmbedBuilder()
@@ -25,7 +29,7 @@ async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({ embeds: [embedReply] });
-}
+};
 
 export default new Command({
   name: "list-gamer-words",

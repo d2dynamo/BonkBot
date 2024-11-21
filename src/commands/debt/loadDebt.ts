@@ -6,15 +6,15 @@ import {
 
 import parseDiscordUID from "../../modules/discordUID";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import Command from "../../modules/command";
+import Command, { CommandExecute } from "../../modules/command";
 import { getUserWallet } from "../../modules/debtWallet/get";
 import { createWallet } from "../../modules/debtWallet/create";
 
-async function execute(
+const execute: CommandExecute = async (
   interaction: CommandInteraction,
   interactorDID: string,
   guildDID: string
-) {
+) => {
   const userOpt = interaction.options.get("user");
   if (
     !userOpt ||
@@ -44,7 +44,7 @@ async function execute(
       : `${userOpt.user.username} has ${userWallet.balance} in their swear jar.`;
 
   interaction.reply(reply);
-}
+};
 
 const options = [
   new SlashCommandUserOption()

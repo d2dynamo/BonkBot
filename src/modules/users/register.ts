@@ -6,7 +6,12 @@ import { getUserWallet } from "../debtWallet/get";
 import { createWallet } from "../debtWallet/create";
 import { changeUserPermissions } from "./update";
 import { PermissionsEnum } from "../permissions/permissions";
-import { stringToObjectId } from "../database/mongo";
+import {
+  stringToObjectId,
+  stringToObjectIdSync,
+  stringToObjectIdSyncForce,
+} from "../database/mongo";
+import { getGuild } from "../guild/get";
 
 /**
  * Register users from a guild.
@@ -17,39 +22,34 @@ export default async function registerUsersFromGuild(guild: Guild) {
     const members = Array.from(m.values());
 
     for (let j = 0; j < members.length; j++) {
-      if (members[j].user.bot) {
+      const member = members[j];
+
+      if (member.user.bot) {
         continue;
       }
 
       try {
-        await getUserWallet(parseDiscordUID(members[j].id), guild.id);
+        await getUserWallet(parseDiscordUID(member.id), guild.id);
       } catch (error: any) {
         if ((error.message as string).includes("Wallet not found")) {
-          await createWallet(parseDiscordUID(members[j].id), guild.id);
+          await createWallet(parseDiscordUID(member.id), guild.id);
           continue;
         } else if ((error.message as string).includes("User not found")) {
           await createUser(
-            parseDiscordUID(members[j].id),
+            parseDiscordUID(member.id),
             guild.id,
-            members[j].user.username
+            member.user.username
           );
 
-          const basicPermOId = await stringToObjectId(PermissionsEnum.basic);
+          await changeUserPermissions(parseDiscordUID(member.id), guild.id, {
+            permissionId:
+              member.id === guild.ownerId
+                ? stringToObjectIdSyncForce(PermissionsEnum.admin)
+                : stringToObjectIdSyncForce(PermissionsEnum.basic),
+            active: true,
+          });
 
-          if (!basicPermOId) {
-            throw Error(">> Error getting basic permission object id");
-          }
-
-          await changeUserPermissions(
-            parseDiscordUID(members[j].id),
-            guild.id,
-            {
-              permissionId: basicPermOId,
-              active: true,
-            }
-          );
-
-          await createWallet(parseDiscordUID(members[j].id), guild.id);
+          await createWallet(parseDiscordUID(member.id), guild.id);
         } else {
           throw error;
         }

@@ -6,17 +6,17 @@ import {
 } from "discord.js";
 
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import Command from "../../modules/command";
+import Command, { CommandExecute } from "../../modules/command";
 import { updateUserWallet } from "../../modules/debtWallet/update";
 import parseDiscordUID from "../../modules/discordUID";
 import { getUserWallet } from "../../modules/debtWallet/get";
 import { createWallet } from "../../modules/debtWallet/create";
 
-async function execute(
+const execute: CommandExecute = async (
   interaction: CommandInteraction,
   interactorDID: string,
   guildDID: string
-) {
+) => {
   const userOpt = interaction.options.get("user");
   if (
     !userOpt ||
@@ -80,7 +80,7 @@ async function execute(
   }
 
   interaction.reply(`Set debt for ${userOpt.user.username} to ${amount.value}`);
-}
+};
 
 const options = [
   new SlashCommandUserOption()
