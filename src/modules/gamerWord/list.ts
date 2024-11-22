@@ -249,6 +249,72 @@ export async function listGamerWordsOptions(): Promise<
   return options;
 }
 
+export async function listGuildGamerWordsOptions(
+  guildDID: DiscordUID
+): Promise<ListGamerWordsOptions[]> {
+  const coll = await connectCollection("guilds");
+
+  const pipe = [
+    {
+      $match: {
+        discordId: guildDID,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+      },
+    },
+    {
+      $lookup: {
+        from: "guildGamerWords",
+        localField: "_id",
+        foreignField: "guildId",
+        as: "guildGamerWords",
+      },
+    },
+    {
+      $unwind: { path: "$guildGamerWords.gamerWordIds", as: "gamerWordId" },
+    },
+    {
+      $lookup: {
+        from: "gamerWords",
+        localField: "gamerWordId",
+        foreignField: "_id",
+        as: "gamerWords",
+      },
+    },
+    {
+      $unwind: "$gamerWords",
+    },
+    {
+      $project: {
+        _id: 1,
+        word: "$gamerWords.word",
+      },
+    },
+  ];
+
+  const cursor = coll.aggregate(pipe);
+
+  const options: ListGamerWordsOptions[] = [];
+
+  while (await cursor.hasNext()) {
+    const doc = await cursor.next();
+
+    if (!doc || !doc._id) {
+      continue;
+    }
+
+    options.push({
+      name: doc.word,
+      value: String(doc._id),
+    });
+  }
+
+  return options;
+}
+
 export default async function listAndBuildGamerWords(): Promise<GamerWord[]> {
   if (Date.now() - lastCache < cacheTime && !isCacheUpdating) {
     console.log("Returning cached words", cachedWords.length);

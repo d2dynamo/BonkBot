@@ -81,6 +81,7 @@ export async function getUserWithPermissions(
       {
         $project: {
           _id: 1,
+          guildId: 1,
           userName: 1,
           createdAt: 1,
           updatedAt: 1,
@@ -117,6 +118,7 @@ export async function getUserWithPermissions(
 
   const returnObj: UserWithPerms = {
     _id: aggResult[0]._id,
+    guildId: aggResult[0].guildId,
     userName: aggResult[0].userName,
     createdAt: aggResult[0].createdAt,
     updatedAt: aggResult[0].updatedAt,
@@ -200,7 +202,7 @@ export async function checkUserWOID(id: ObjectId): Promise<boolean> {
   return !!user;
 }
 
-interface UserWithPermsWOID extends User {
+interface UserWithPermsWOID extends Omit<User, "guildId"> {
   permissions: UserPerm[];
 }
 
