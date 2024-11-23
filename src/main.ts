@@ -1,14 +1,18 @@
-import { Client, Events, GatewayIntentBits } from "discord.js";
+import { Client, Events, GatewayIntentBits, Guild } from "discord.js";
 import "dotenv/config";
 
 import EventHandler from "./handlers";
 import registerCommands from "./modules/registerCommands";
 import Commands from "./commands";
 import registerUsers from "./modules/users/register";
-import connectCollection from "./modules/database/mongo";
+import connectCollection, {
+  stringToObjectIdSyncForce,
+} from "./modules/database/mongo";
 import registerGuild from "./modules/guild/register";
 import { getGuild } from "./modules/guild/get";
 import { listGuildGamerWordsWOID } from "./modules/gamerWord/list";
+import { PermissionsEnum } from "./modules/permissions/permissions";
+import { changeUserPermissions } from "./modules/users/update";
 
 (async () => {
   if (process.env.NODE_ENV == "development") {
@@ -66,10 +70,22 @@ import { listGuildGamerWordsWOID } from "./modules/gamerWord/list";
       await registerCommands();
 
       const guilds = await client.guilds.fetch();
-      console.log(">> Fetched guilds", guilds.size);
+
+      console.log(">> Fetching guilds", guilds.size);
+
       guilds.forEach(async (guild) => {
         console.log(">> Guild", guild.name, guild.id);
+
         const g = await guild.fetch();
+
+        //ensure owner is admin
+        const owner = g.ownerId;
+
+        await changeUserPermissions(owner, guild.id, {
+          permissionId: stringToObjectIdSyncForce(PermissionsEnum.admin),
+          active: true,
+        });
+
         await registerGuild(g);
         await registerUsers(g);
 

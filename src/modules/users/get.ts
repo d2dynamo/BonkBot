@@ -1,8 +1,12 @@
 import parseDiscordUID from "../discordUID";
 import { User, DiscordUID, UserPerm } from "../../interfaces/database";
 
-import connectCollection, { stringToObjectId } from "../database/mongo";
+import connectCollection, {
+  stringToObjectId,
+  stringToObjectIdSyncForce,
+} from "../database/mongo";
 import { ObjectId } from "mongodb";
+import { PermissionsEnum } from "../permissions/permissions";
 
 interface UserWithPerms extends Omit<User, "discordId" | "guildDID"> {
   _id: ObjectId;
@@ -128,6 +132,43 @@ export async function getUserWithPermissions(
   return returnObj;
 }
 
+/**
+ * Array of permissions that the given permission id has priority over.
+ * @param permId permission id from PermissionsEnum
+ */
+const getPermissionTree = (permId: string | ObjectId): Array<ObjectId> => {
+  const basic = PermissionsEnum.basic;
+  const banker = PermissionsEnum.banker;
+  const admin = PermissionsEnum.admin;
+  const bigHoncho = PermissionsEnum.bigHoncho;
+
+  switch (String(permId)) {
+    case basic:
+      return [stringToObjectIdSyncForce(basic)];
+    case banker:
+      return [
+        stringToObjectIdSyncForce(basic),
+        stringToObjectIdSyncForce(banker),
+      ];
+    case admin:
+      return [
+        stringToObjectIdSyncForce(basic),
+        stringToObjectIdSyncForce(banker),
+        stringToObjectIdSyncForce(admin),
+      ];
+    case bigHoncho:
+      return [
+        stringToObjectIdSyncForce(basic),
+        stringToObjectIdSyncForce(banker),
+        stringToObjectIdSyncForce(admin),
+        stringToObjectIdSyncForce(bigHoncho),
+      ];
+
+    default:
+      return [];
+  }
+};
+
 export async function checkUserPermission(
   userDID: DiscordUID,
   guildDID: string,
@@ -137,9 +178,9 @@ export async function checkUserPermission(
 
   const coll = await connectCollection("userPermissions");
 
-  const permOId = await stringToObjectId(permId);
-  if (!permOId) {
-    throw new Error(`Invalid permission objectId: ${permId}`);
+  const permTree = getPermissionTree(permId);
+  if (!permTree.length) {
+    throw new Error(`Invalid permission: ${permId}`);
   }
 
   const permResult = await coll.findOne(
@@ -147,7 +188,7 @@ export async function checkUserPermission(
       userId: user._id,
       permissions: {
         $elemMatch: {
-          permissionId: { $eq: permOId },
+          permissionId: { $in: permTree },
           active: { $eq: true },
         },
       },

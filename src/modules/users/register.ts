@@ -6,11 +6,7 @@ import { getUserWallet } from "../debtWallet/get";
 import { createWallet } from "../debtWallet/create";
 import { changeUserPermissions } from "./update";
 import { PermissionsEnum } from "../permissions/permissions";
-import {
-  stringToObjectId,
-  stringToObjectIdSync,
-  stringToObjectIdSyncForce,
-} from "../database/mongo";
+import { stringToObjectIdSyncForce } from "../database/mongo";
 import { getGuild } from "../guild/get";
 
 /**
