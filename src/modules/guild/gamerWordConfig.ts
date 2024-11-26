@@ -23,7 +23,7 @@ export async function subscribeGamerWord(
     { guildId: guild._id },
     {
       $addToSet: {
-        gamerWords: gamerWordId,
+        gamerWordIds: gamerWordId,
       },
       $setOnInsert: {
         guildId: guild._id,

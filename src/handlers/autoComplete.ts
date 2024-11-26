@@ -46,6 +46,7 @@ async function subscribeGamerWord(interaction: AutocompleteInteraction) {
 
 async function guildGamerWord(interaction: AutocompleteInteraction) {
   if (!interaction.guildId) {
+    console.log("GuildId not found for autocomplete");
     return;
   }
 

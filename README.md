@@ -50,12 +50,23 @@ Write commands with localization in mind. Store localization strings in yaml or 
 
 Use golang to handle gamer word watcher? (comms with grpc)
 
+## Rewrite bot in golang?
+
+Cause fun
+
 # Commands
 
 - bd-load | loads swear jar
 - bd-set | sets debt in swear jar
 - bd-add | adds to debt in swear jar
 - bd-remove | remove debt from swear jar
+
+- subscribe-gamer-word | Subscribe guild to gamer word
+- list-gamer-words | List all available gamer words
+- list-guild-words | List all words guild is subscribed to
+- save-word-config | Change cost or response of a gamer word
+
+- set-user-permission | Change user permission
 
 # Other features
 

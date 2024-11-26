@@ -20,6 +20,7 @@ export async function getGuild(gid: string): Promise<BonkGuild> {
   return {
     id: guild._id,
     name: guild.name,
+    guildOwnerDID: guild.guildOwnerDID,
     createdAt: guild.createdAt,
     updatedAt: guild.updatedAt,
   };

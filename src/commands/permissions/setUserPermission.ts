@@ -72,7 +72,7 @@ const options = [
 ];
 
 export default new Command({
-  name: "bonk-set-perm",
+  name: "set-user-permission",
   description: "Set a users permission level.",
   options,
   execute,

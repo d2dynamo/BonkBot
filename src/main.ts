@@ -2,15 +2,14 @@ import { Client, Events, GatewayIntentBits, Guild } from "discord.js";
 import "dotenv/config";
 
 import EventHandler from "./handlers";
-import registerCommands from "./modules/registerCommands";
+import { registerGuildCommands } from "./modules/registerCommands";
 import Commands from "./commands";
 import registerUsers from "./modules/users/register";
 import connectCollection, {
   stringToObjectIdSyncForce,
 } from "./modules/database/mongo";
 import registerGuild from "./modules/guild/register";
-import { getGuild } from "./modules/guild/get";
-import { listGuildGamerWordsWOID } from "./modules/gamerWord/list";
+import { listGuildGamerWords } from "./modules/gamerWord/list";
 import { PermissionsEnum } from "./modules/permissions/permissions";
 import { changeUserPermissions } from "./modules/users/update";
 
@@ -61,13 +60,9 @@ import { changeUserPermissions } from "./modules/users/update";
     client.on(Events.ClientReady, async () => {
       console.log(">> Bot started");
 
-      console.log(">> Registering commands");
-
-      client.application?.commands.set(
-        Commands.map((command) => command.data.toJSON())
-      );
-
-      await registerCommands();
+      // client.application?.commands.set(
+      //   Commands.map((command) => command.data.toJSON())
+      // );
 
       const guilds = await client.guilds.fetch();
 
@@ -78,20 +73,20 @@ import { changeUserPermissions } from "./modules/users/update";
 
         const g = await guild.fetch();
 
-        //ensure owner is admin
-        const owner = g.ownerId;
+        await registerGuild(g);
+        await registerUsers(g);
 
-        await changeUserPermissions(owner, guild.id, {
+        //ensure owner is admin
+        await changeUserPermissions(g.ownerId, guild.id, {
           permissionId: stringToObjectIdSyncForce(PermissionsEnum.admin),
           active: true,
         });
 
-        await registerGuild(g);
-        await registerUsers(g);
+        console.log(">> Registering commands");
 
-        const bonkGuild = await getGuild(g.id);
+        await registerGuildCommands(g.id);
 
-        await listGuildGamerWordsWOID(bonkGuild.id);
+        await listGuildGamerWords(g.id);
       });
 
       console.log(">> Ready to bonk!");

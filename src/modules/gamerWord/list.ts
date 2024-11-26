@@ -18,6 +18,14 @@ interface GuildGamerWord extends GamerWordDoc {
   id: ObjectId;
 }
 
+interface GuildWordCacheType {
+  words: GuildGamerWord[];
+  lastCache: number;
+  isUpdating: boolean;
+}
+
+const guildWordCache = new Map<ObjectId, GuildWordCacheType>();
+
 export async function listGuildGamerWords(
   guidDID: DiscordUID
 ): Promise<GuildGamerWord[]> {
@@ -28,6 +36,14 @@ export async function listGuildGamerWords(
       $match: {
         discordId: guidDID,
       },
+    },
+    {
+      $project: {
+        _id: 1,
+      },
+    },
+    {
+      $unwind: "$_id",
     },
     {
       $lookup: {
@@ -45,11 +61,11 @@ export async function listGuildGamerWords(
         from: "gamerWords",
         localField: "guildGamerWords.gamerWordIds",
         foreignField: "_id",
-        as: "gamerWords",
+        as: "gamerWord",
       },
     },
     {
-      $unwind: "$gamerWords",
+      $unwind: "$gamerWord",
     },
     {
       $lookup: {
@@ -71,18 +87,25 @@ export async function listGuildGamerWords(
         as: "gamerWordConfig",
       },
     },
+    {
+      $project: {
+        guildGamerWords: 0,
+      },
+    },
     { $unwind: { path: "$gamerWordConfig", preserveNullAndEmptyArrays: true } },
     {
       $addFields: {
-        "gamerWords.cost": {
-          $ifNull: ["$gamerWordConfig.cost", "$gamerWords.cost"],
+        "gamerWord.cost": {
+          $ifNull: ["$gamerWordConfig.cost", "$gamerWord.cost"],
         },
-      },
-      "gamerWords.response": {
-        $ifNull: ["$gamerWordConfig.response", "$gamerWords.response"],
+        "gamerWord.response": {
+          $ifNull: ["$gamerWordConfig.response", "$gamerWord.response"],
+        },
       },
     },
   ];
+
+  let guildOID: ObjectId | null = null;
 
   const cursor = coll.aggregate(pipe);
 
@@ -95,16 +118,27 @@ export async function listGuildGamerWords(
       continue;
     }
 
-    console.log("gamerWord:", doc);
+    if (!guildOID) {
+      guildOID = doc._id;
+    }
 
     gWords.push({
-      id: doc.gamerWords._id,
-      word: doc.gamerWords.word,
-      phrases: doc.gamerWords.phrases,
-      cost: doc.gamerWords.cost,
-      response: doc.gamerWords.response,
-      createdAt: doc.gamerWords.createdAt,
-      updatedAt: doc.gamerWords.updatedAt,
+      id: doc.gamerWord._id,
+      word: doc.gamerWord.word,
+      phrases: doc.gamerWord.phrases,
+      cost: doc.gamerWord.cost,
+      response: doc.gamerWord.response,
+      createdAt: doc.gamerWord.createdAt,
+      updatedAt: doc.gamerWord.updatedAt,
+    });
+  }
+
+  if (guildOID) {
+    console.log("Setting cache for guild", guildOID, gWords.length);
+    guildWordCache.set(guildOID, {
+      words: gWords,
+      lastCache: Date.now(),
+      isUpdating: false,
     });
   }
 
@@ -114,6 +148,12 @@ export async function listGuildGamerWords(
 export async function listGuildGamerWordsWOID(
   guildId: ObjectId
 ): Promise<GuildGamerWord[]> {
+  const cache = guildWordCache.get(guildId);
+
+  if (cache && Date.now() - cache.lastCache < cacheTime && !cache.isUpdating) {
+    return cache.words;
+  }
+
   const coll = await connectCollection("guildGamerWords");
 
   const pipe = [
@@ -135,6 +175,13 @@ export async function listGuildGamerWordsWOID(
     },
     {
       $unwind: "$gamerWord",
+    },
+    {
+      $project: {
+        gamerWordIds: 0,
+        createdAt: 0,
+        updatedAt: 0,
+      },
     },
     {
       $lookup: {
@@ -160,16 +207,16 @@ export async function listGuildGamerWordsWOID(
     {
       $addFields: {
         "gamerWord.cost": {
-          $ifNull: ["$gamerWordConfig.cost", "gamerWord.cost"],
+          $ifNull: ["$gamerWordConfig.cost", "$gamerWord.cost"],
         },
-      },
-      "gamerWord.response": {
-        $ifNull: ["$gamerWordConfig.response", "gamerWord.response"],
+        "gamerWord.response": {
+          $ifNull: ["$gamerWordConfig.response", "$gamerWord.response"],
+        },
       },
     },
   ];
 
-  const cursor = coll.aggregate();
+  const cursor = coll.aggregate(pipe);
 
   const gWords: GuildGamerWord[] = [];
 
@@ -190,6 +237,12 @@ export async function listGuildGamerWordsWOID(
       updatedAt: doc.gamerWord.updatedAt,
     });
   }
+
+  guildWordCache.set(guildId, {
+    words: gWords,
+    lastCache: Date.now(),
+    isUpdating: false,
+  });
 
   return gWords;
 }
@@ -274,12 +327,12 @@ export async function listGuildGamerWordsOptions(
       },
     },
     {
-      $unwind: { path: "$guildGamerWords.gamerWordIds", as: "gamerWordId" },
+      $unwind: "$guildGamerWords.gamerWordIds",
     },
     {
       $lookup: {
         from: "gamerWords",
-        localField: "gamerWordId",
+        localField: "gamerWordIds",
         foreignField: "_id",
         as: "gamerWords",
       },
@@ -301,6 +354,8 @@ export async function listGuildGamerWordsOptions(
 
   while (await cursor.hasNext()) {
     const doc = await cursor.next();
+
+    console.log("guildgamerwords option", doc);
 
     if (!doc || !doc._id) {
       continue;
