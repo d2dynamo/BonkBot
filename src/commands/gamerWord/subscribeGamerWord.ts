@@ -26,7 +26,7 @@ const execute: CommandExecute = async (
   }
 
   const wordOptValue = wordOpt.value as string;
-  // TODO: Repeat this pattern in other commands: check type and the value exists and assert type.
+  // TODO: Repeat this pattern in other commands: check type and the  exists and assert type.
 
   const gamerWordObjId = stringToObjectIdSync(wordOptValue);
 

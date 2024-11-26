@@ -28,6 +28,11 @@ const execute: CommandExecute = async (
 
   const userDID = parseDiscordUID(userOpt.user.id);
 
+  if (userDID === interaction.guild?.ownerId) {
+    interaction.reply("May not change permissions for guild owner.");
+    return;
+  }
+
   const permissionId = interaction.options.get("permission-id");
 
   if (!permissionId || typeof permissionId.value !== "string") {

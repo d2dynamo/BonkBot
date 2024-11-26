@@ -96,8 +96,8 @@ const options = [
 ];
 
 export default new Command({
-  name: "subscribe-gamer-word",
-  description: "Subscribe to a gamer word",
+  name: "save-word-config",
+  description: "Save gamer word config for the guild",
   options,
   execute,
   requiredPermission: PermissionsEnum.admin,

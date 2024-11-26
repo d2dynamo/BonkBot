@@ -1,13 +1,7 @@
-import {
-  ApplicationCommandOptionType,
-  CommandInteraction,
-  EmbedBuilder,
-  SlashCommandStringOption,
-} from "discord.js";
+import { CommandInteraction, EmbedBuilder } from "discord.js";
 
 import Command, { CommandExecute } from "../../modules/command";
 import { PermissionsEnum } from "../../modules/permissions/permissions";
-import { stringToObjectIdSync } from "../../modules/database/mongo";
 import { listGuildGamerWords } from "../../modules/gamerWord/list";
 import { botIconURL } from "../../util";
 
@@ -38,8 +32,8 @@ const execute: CommandExecute = async (
 };
 
 export default new Command({
-  name: "subscribe-gamer-word",
-  description: "Subscribe to a gamer word",
+  name: "list-guild-words",
+  description: "List guild gamer words",
   options: null,
   execute,
   requiredPermission: PermissionsEnum.basic,

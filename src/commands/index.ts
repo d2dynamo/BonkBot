@@ -5,6 +5,8 @@ import RemoveDebt from "./debt/removeDebt";
 import ListGamerWords from "./gamerWord/listGamerWords";
 import SetUserPermission from "./permissions/setUserPermission";
 import SubscribeGamerWord from "./gamerWord/subscribeGamerWord";
+import ListSubscribedGamerWords from "./gamerWord/listSubscribed";
+import SaveGamerWordConfig from "./gamerWord/saveGamerWordConfig";
 
 export {
   LoadDebt,
@@ -14,6 +16,8 @@ export {
   ListGamerWords,
   SetUserPermission,
   SubscribeGamerWord,
+  ListSubscribedGamerWords,
+  SaveGamerWordConfig,
 };
 
 /**
@@ -27,4 +31,6 @@ export default [
   ListGamerWords,
   SetUserPermission,
   SubscribeGamerWord,
+  ListSubscribedGamerWords,
+  SaveGamerWordConfig,
 ];
