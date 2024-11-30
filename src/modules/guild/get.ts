@@ -8,10 +8,17 @@ interface BonkGuild extends Omit<Guild, "discordId"> {
   updatedAt: Date;
 }
 
-export async function getGuild(gid: string): Promise<BonkGuild> {
+export async function getGuild(guildDID: string): Promise<BonkGuild> {
   const coll = await connectCollection("guilds");
 
-  const guild = await coll.findOne({ discordId: gid });
+  const guild = await coll.findOne(
+    { discordId: guildDID },
+    {
+      projection: {
+        discordId: 0,
+      },
+    }
+  );
 
   if (!guild) {
     throw new Error("Guild not found");
@@ -21,6 +28,36 @@ export async function getGuild(gid: string): Promise<BonkGuild> {
     id: guild._id,
     name: guild.name,
     guildOwnerDID: guild.guildOwnerDID,
+    createdAt: guild.createdAt,
+    updatedAt: guild.updatedAt,
+  };
+}
+
+export async function getGuildWithOID(guildId: ObjectId): Promise<Guild> {
+  const coll = await connectCollection("guilds");
+
+  const guild = await coll.findOne(
+    { _id: guildId },
+    {
+      projection: {
+        _id: 0,
+        discordId: 1,
+        name: 1,
+        guildOwnerDID: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    }
+  );
+
+  if (!guild) {
+    throw Error("Guild not found.");
+  }
+
+  return {
+    discordId: guild.discordId,
+    guildOwnerDID: guild.guildOwnerDID,
+    name: guild.name,
     createdAt: guild.createdAt,
     updatedAt: guild.updatedAt,
   };

@@ -5,36 +5,37 @@ import {
 import GamerWord from "./gamerWord";
 import connectCollection from "../database/mongo";
 import { ObjectId, WithId } from "mongodb";
+import MemoryCache from "../memcacher";
+import { getGuildWithOID } from "../guild/get";
 
 // Cache words so that we don't have to query the database on every message.
 
-// ! Make map for guild separate words.
-const cachedWords: GamerWord[] = [];
-const cacheTime = 1000 * 60 * 60 * 24 * 1; // 1 days
-let lastCache = Date.now() - cacheTime; // force update on first call, aka bot just started.
-let isCacheUpdating = false;
+const cacheTimeMs = 1000 * 60 * 60 * 24;
+const cache = MemoryCache.getInstance();
 
 interface GuildGamerWord extends GamerWordDoc {
   id: ObjectId;
 }
 
-interface GuildWordCacheType {
-  words: GuildGamerWord[];
-  lastCache: number;
-  isUpdating: boolean;
-}
-
-const guildWordCache = new Map<ObjectId, GuildWordCacheType>();
-
 export async function listGuildGamerWords(
-  guidDID: DiscordUID
+  guildDID: DiscordUID
 ): Promise<GuildGamerWord[]> {
+  const lastCache = cache.getTime(guildDID);
+  console.log("guildDID", lastCache);
+  if (
+    cache.has(guildDID) &&
+    lastCache &&
+    Date.now() - lastCache < cacheTimeMs
+  ) {
+    return cache.get(guildDID)!;
+  }
+
   const coll = await connectCollection("guilds");
 
   const pipe = [
     {
       $match: {
-        discordId: guidDID,
+        discordId: guildDID,
       },
     },
     {
@@ -135,11 +136,12 @@ export async function listGuildGamerWords(
 
   if (guildOID) {
     console.log("Setting cache for guild", guildOID, gWords.length);
-    guildWordCache.set(guildOID, {
-      words: gWords,
-      lastCache: Date.now(),
-      isUpdating: false,
-    });
+    // guildWordCache.set(guildOID, {
+    //   words: gWords,
+    //   lastCache: Date.now(),
+    //   isUpdating: false,
+    // });
+    cache.set(guildDID, gWords);
   }
 
   return gWords;
@@ -148,10 +150,15 @@ export async function listGuildGamerWords(
 export async function listGuildGamerWordsWOID(
   guildId: ObjectId
 ): Promise<GuildGamerWord[]> {
-  const cache = guildWordCache.get(guildId);
+  const guild = await getGuildWithOID(guildId);
+  const lastCache = cache.getTime(guild.discordId);
 
-  if (cache && Date.now() - cache.lastCache < cacheTime && !cache.isUpdating) {
-    return cache.words;
+  if (
+    cache.has(guild.discordId) &&
+    lastCache &&
+    Date.now() - lastCache < cacheTimeMs
+  ) {
+    return cache.get(guild.discordId)!;
   }
 
   const coll = await connectCollection("guildGamerWords");
@@ -238,18 +245,8 @@ export async function listGuildGamerWordsWOID(
     });
   }
 
-  guildWordCache.set(guildId, {
-    words: gWords,
-    lastCache: Date.now(),
-    isUpdating: false,
-  });
-
+  cache.set(guild.discordId, gWords);
   return gWords;
-}
-
-interface GamerWordsAll extends GamerWordDoc {
-  guildId: ObjectId;
-  guildDID: DiscordUID;
 }
 
 export async function listGamerWordsFull(): Promise<WithId<GamerWordDoc>[]> {
@@ -370,46 +367,35 @@ export async function listGuildGamerWordsOptions(
   return options;
 }
 
-export default async function listAndBuildGamerWords(): Promise<GamerWord[]> {
-  if (Date.now() - lastCache < cacheTime && !isCacheUpdating) {
-    console.log("Returning cached words", cachedWords.length);
-    return cachedWords;
+export async function listAndBuildGamerWords(
+  guildId: string | ObjectId
+): Promise<GamerWord[]> {
+  let words: GuildGamerWord[];
+  if (guildId instanceof ObjectId) {
+    words = await listGuildGamerWordsWOID(guildId);
+  } else if (typeof guildId == "string") {
+    words = await listGuildGamerWords(guildId);
+  } else {
+    throw Error("Invalid guildId.");
   }
 
-  if (isCacheUpdating) {
-    return new Promise((resolve) => {
-      const interval = setInterval(() => {
-        if (!isCacheUpdating) {
-          clearInterval(interval);
-          resolve(cachedWords);
-        }
-      }, 200);
-    });
+  if (!words.length) {
+    throw Error("no words found for guild.");
   }
 
-  try {
-    isCacheUpdating = true;
-    console.log("updating word cache");
+  const gamerWords: GamerWord[] = [];
 
-    const result = (await listGamerWordsFull()).map((item) => {
-      let optionals =
-        item.response || item.createdAt || item.updatedAt
-          ? {
-              response: item.response,
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-            }
-          : undefined;
+  for (let i = 0; i < words.length; i++) {
+    const item = words[i];
 
-      const gamerWord = new GamerWord(item.phrases, item.cost, optionals);
-      return gamerWord;
-    });
-
-    cachedWords.splice(0, cachedWords.length, ...result);
-    console.log("Updated cache with", cachedWords.length, "words");
-    lastCache = Date.now();
-    return result;
-  } finally {
-    isCacheUpdating = false;
+    gamerWords.push(
+      new GamerWord(item.phrases, item.cost, {
+        response: item.response,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })
+    );
   }
+
+  return gamerWords;
 }

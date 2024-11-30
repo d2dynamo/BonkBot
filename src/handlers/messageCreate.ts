@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import GamerWord from "../modules/gamerWord/gamerWord";
 import { GamerWordDefaultResponse } from "../constants/defaults";
-import listAndBuildGamerWords from "../modules/gamerWord/list";
+import { listAndBuildGamerWords } from "../modules/gamerWord/list";
 import { updateUserWallet, updateWallet } from "../modules/debtWallet/update";
 import { getUserWallet } from "../modules/debtWallet/get";
 import { createWallet } from "../modules/debtWallet/create";
@@ -11,7 +11,10 @@ let lastPing = Date.now();
 async function checkForGamerWords(message: Message): Promise<GamerWord[]> {
   const matchedGamerWords: GamerWord[] = [];
   const words = message.content.split(" ");
-  const gamerWords = await listAndBuildGamerWords();
+  if (!message.guildId) {
+    throw Error("Message missing guildId.");
+  }
+  const gamerWords = await listAndBuildGamerWords(message.guildId);
 
   for (let i = 0; i < words.length; i++) {
     for (let j = 0; j < gamerWords.length; j++) {
