@@ -6,7 +6,6 @@ import { UserError } from "../modules/errors";
 export default async (interaction: CommandInteraction) => {
   try {
     const commandName = interaction.commandName;
-    console.log(">> Command name", commandName);
 
     const command = Commands.find(
       (command) => command.data.name === commandName

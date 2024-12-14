@@ -21,10 +21,10 @@ export async function listGuildGamerWords(
   guildDID: DiscordUID
 ): Promise<GuildGamerWord[]> {
   const lastCache = cache.getTime(guildDID);
-  console.log("guildDID", lastCache);
+
   if (
-    cache.has(guildDID) &&
     lastCache &&
+    cache.has(guildDID) &&
     Date.now() - lastCache < cacheTimeMs
   ) {
     return cache.get(guildDID)!;
@@ -135,12 +135,6 @@ export async function listGuildGamerWords(
   }
 
   if (guildOID) {
-    console.log("Setting cache for guild", guildOID, gWords.length);
-    // guildWordCache.set(guildOID, {
-    //   words: gWords,
-    //   lastCache: Date.now(),
-    //   isUpdating: false,
-    // });
     cache.set(guildDID, gWords);
   }
 
@@ -154,8 +148,8 @@ export async function listGuildGamerWordsWOID(
   const lastCache = cache.getTime(guild.discordId);
 
   if (
-    cache.has(guild.discordId) &&
     lastCache &&
+    cache.has(guild.discordId) &&
     Date.now() - lastCache < cacheTimeMs
   ) {
     return cache.get(guild.discordId)!;
@@ -247,6 +241,39 @@ export async function listGuildGamerWordsWOID(
 
   cache.set(guild.discordId, gWords);
   return gWords;
+}
+
+export async function listAndBuildGamerWords(
+  guildId: string | ObjectId
+): Promise<GamerWord[]> {
+  let words: GuildGamerWord[];
+  if (guildId instanceof ObjectId) {
+    words = await listGuildGamerWordsWOID(guildId);
+  } else if (typeof guildId == "string") {
+    words = await listGuildGamerWords(guildId);
+  } else {
+    throw Error("Invalid guildId.");
+  }
+
+  if (!words.length) {
+    throw Error("no words found for guild.");
+  }
+
+  const gamerWords: GamerWord[] = [];
+
+  for (let i = 0; i < words.length; i++) {
+    const item = words[i];
+
+    gamerWords.push(
+      new GamerWord(item.phrases, item.cost, {
+        response: item.response,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })
+    );
+  }
+
+  return gamerWords;
 }
 
 export async function listGamerWordsFull(): Promise<WithId<GamerWordDoc>[]> {
@@ -352,8 +379,6 @@ export async function listGuildGamerWordsOptions(
   while (await cursor.hasNext()) {
     const doc = await cursor.next();
 
-    console.log("guildgamerwords option", doc);
-
     if (!doc || !doc._id) {
       continue;
     }
@@ -365,37 +390,4 @@ export async function listGuildGamerWordsOptions(
   }
 
   return options;
-}
-
-export async function listAndBuildGamerWords(
-  guildId: string | ObjectId
-): Promise<GamerWord[]> {
-  let words: GuildGamerWord[];
-  if (guildId instanceof ObjectId) {
-    words = await listGuildGamerWordsWOID(guildId);
-  } else if (typeof guildId == "string") {
-    words = await listGuildGamerWords(guildId);
-  } else {
-    throw Error("Invalid guildId.");
-  }
-
-  if (!words.length) {
-    throw Error("no words found for guild.");
-  }
-
-  const gamerWords: GamerWord[] = [];
-
-  for (let i = 0; i < words.length; i++) {
-    const item = words[i];
-
-    gamerWords.push(
-      new GamerWord(item.phrases, item.cost, {
-        response: item.response,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      })
-    );
-  }
-
-  return gamerWords;
 }
