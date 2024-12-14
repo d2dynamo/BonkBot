@@ -2,7 +2,7 @@ node_modules
 test
 dist
 build
-.env
+.env*
 docker-compose*.yml
 
 .vscode/

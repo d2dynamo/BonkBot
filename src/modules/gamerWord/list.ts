@@ -134,7 +134,7 @@ export async function listGuildGamerWords(
     });
   }
 
-  if (guildOID) {
+  if (gWords.length && guildOID) {
     cache.set(guildDID, gWords);
   }
 
@@ -239,7 +239,10 @@ export async function listGuildGamerWordsWOID(
     });
   }
 
-  cache.set(guild.discordId, gWords);
+  if (gWords.length) {
+    cache.set(guild.discordId, gWords);
+  }
+
   return gWords;
 }
 
