@@ -259,7 +259,7 @@ export async function listAndBuildGamerWords(
   }
 
   if (!words.length) {
-    throw Error("no words found for guild.");
+    return [];
   }
 
   const gamerWords: GamerWord[] = [];

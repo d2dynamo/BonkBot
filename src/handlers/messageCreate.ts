@@ -6,7 +6,7 @@ import { updateUserWallet, updateWallet } from "../modules/debtWallet/update";
 import { getUserWallet } from "../modules/debtWallet/get";
 import { createWallet } from "../modules/debtWallet/create";
 
-let lastPing = Date.now();
+let lastPing = Date.now() - 5000;
 
 async function checkForGamerWords(message: Message): Promise<GamerWord[]> {
   const matchedGamerWords: GamerWord[] = [];
@@ -15,6 +15,9 @@ async function checkForGamerWords(message: Message): Promise<GamerWord[]> {
     throw Error("Message missing guildId.");
   }
   const gamerWords = await listAndBuildGamerWords(message.guildId);
+  if (!gamerWords.length) {
+    return [];
+  }
 
   for (let i = 0; i < words.length; i++) {
     for (let j = 0; j < gamerWords.length; j++) {
@@ -33,12 +36,13 @@ export default async (message: Message) => {
   if (message.content === "!ping") {
     const now = Date.now();
 
-    if (now - lastPing > 5000) {
+    if (now - lastPing < 1000 * 10) {
       return;
     }
 
     message.reply(`Pong!`);
     lastPing = now;
+    return;
   }
 
   const matchedGamerWords = await checkForGamerWords(message);

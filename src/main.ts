@@ -1,4 +1,10 @@
-import { Client, Events, GatewayIntentBits, Guild } from "discord.js";
+import {
+  Client,
+  Events,
+  GatewayIntentBits,
+  Guild,
+  OAuth2Guild,
+} from "discord.js";
 import "dotenv/config";
 
 import EventHandler from "./handlers";
@@ -12,6 +18,39 @@ import registerGuild from "./modules/guild/register";
 import { listGuildGamerWords } from "./modules/gamerWord/list";
 import { PermissionsEnum } from "./modules/permissions/permissions";
 import { changeUserPermissions } from "./modules/users/update";
+
+const onClientReady = async (client: Client) => {
+  console.log(">> Bot starting");
+
+  client.application?.commands.set([]);
+
+  const guilds = await client.guilds.fetch();
+
+  console.log(">> Handling guilds", guilds.size);
+
+  guilds.forEach(async (guild) => {
+    console.log(">> Guild", guild.name, guild.id);
+
+    const g = await guild.fetch();
+
+    await registerGuild(g);
+    await registerUsers(g);
+
+    //ensure owner is admin
+    await changeUserPermissions(g.ownerId, guild.id, {
+      permissionId: stringToObjectIdSyncForce(PermissionsEnum.admin),
+      active: true,
+    });
+
+    console.log(">> Registering commands");
+
+    await registerGuildCommands(g.id);
+
+    await listGuildGamerWords(g.id);
+
+    console.log(`>> Guild ${g.name} ready`);
+  });
+};
 
 (async () => {
   if (process.env.NODE_ENV == "development") {
@@ -58,56 +97,33 @@ import { changeUserPermissions } from "./modules/users/update";
     }
 
     client.on(Events.ClientReady, async () => {
-      console.log(">> Bot started");
-
-      // client.application?.commands.set(
-      //   Commands.map((command) => command.data.toJSON())
-      // );
-
-      const guilds = await client.guilds.fetch();
-
-      console.log(">> Fetching guilds", guilds.size);
-
-      guilds.forEach(async (guild) => {
-        console.log(">> Guild", guild.name, guild.id);
-
-        const g = await guild.fetch();
-
-        await registerGuild(g);
-        await registerUsers(g);
-
-        //ensure owner is admin
-        await changeUserPermissions(g.ownerId, guild.id, {
-          permissionId: stringToObjectIdSyncForce(PermissionsEnum.admin),
-          active: true,
-        });
-
-        console.log(">> Registering commands");
-
-        await registerGuildCommands(g.id);
-
-        await listGuildGamerWords(g.id);
-      });
-
-      console.log(">> Ready to bonk!");
+      await onClientReady(client);
     });
 
-    client.on(Events.MessageCreate, async (message) =>
-      EventHandler.messageCreate(message)
-    );
+    client.on(Events.MessageCreate, async (message) => {
+      try {
+        EventHandler.messageCreate(message);
+      } catch (err) {
+        console.error(">> MessageCreate error: ", err);
+      }
+    });
 
     client.on(Events.InteractionCreate, async (interaction) => {
-      if (interaction.isAutocomplete()) {
-        EventHandler.autoComplete(interaction);
-        return;
+      try {
+        if (interaction.isAutocomplete()) {
+          EventHandler.autoComplete(interaction);
+          return;
+        }
+
+        if (interaction.isCommand() || interaction.isContextMenuCommand()) {
+          EventHandler.slashCommand(interaction);
+          return;
+        }
+      } catch (error) {
+        console.error(">> Interaction error: ", error);
       }
 
-      if (interaction.isCommand() || interaction.isContextMenuCommand()) {
-        EventHandler.slashCommand(interaction);
-        return;
-      }
-
-      console.log(">> Interaction weird", interaction);
+      console.error(">> Unhandled interaction: ", interaction);
     });
 
     client.login(process.env.DBOT_TOKEN);
