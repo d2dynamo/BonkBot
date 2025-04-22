@@ -21,7 +21,7 @@ class MemoryCache {
     if (!this.locks.has(key)) {
       this.locks.set(key, new Int32Array(new SharedArrayBuffer(4)));
     }
-    console.log(`setting cache: ${key} | ${value}`);
+
     const lock = this.locks.get(key)!;
 
     const lockValue = Atomics.compareExchange(lock, 0, 0, 1);
@@ -31,7 +31,6 @@ class MemoryCache {
     }
 
     try {
-      console.log(`Storing value for key: ${key}`);
       this.cache.set(key, value);
       this.times.set(key, Date.now());
     } finally {

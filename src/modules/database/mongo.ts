@@ -3,8 +3,8 @@ import {
   type MongoClientOptions,
   ObjectId,
   Collection,
-} from "mongodb";
-import { BonkCollections, CollectionDocs } from "../../interfaces/database";
+} from 'mongodb';
+import { BonkCollections, CollectionDocs } from '../../interfaces/database';
 
 let client: MongoClient | null;
 
@@ -26,7 +26,7 @@ export default async function connectCollection<T extends BonkCollections>(
 
 export async function getDbConnection(dbName?: string) {
   if (!process.env.MONGO_URL || !dbName) {
-    throw new Error("MONGO_URL is not set");
+    throw new Error('MONGO_URL is not set');
   }
 
   if (client) return client.db(dbName || process.env.MONGO_DB_NAME);
@@ -37,13 +37,13 @@ export async function getDbConnection(dbName?: string) {
 
 export async function mongoClient() {
   if (!process.env.MONGO_URL) {
-    throw new Error("MONGO_URL is not set");
+    throw new Error('MONGO_URL is not set');
   }
 
   if (client) return client;
 
   const mongoOpt: MongoClientOptions = {
-    appName: "bonkbot",
+    appName: 'bonkbot',
     maxPoolSize: 30,
     minPoolSize: 3,
     maxIdleTimeMS: 1000 * 60 * 5,
@@ -51,7 +51,7 @@ export async function mongoClient() {
     tlsCAFile: process.env.MONGO_CA,
     tlsCertificateKeyFile: process.env.MONGO_CERT,
     tlsInsecure: true,
-    authSource: "$external",
+    authSource: '$external',
   };
 
   client = new MongoClient(process.env.MONGO_URL, mongoOpt);
@@ -66,7 +66,7 @@ export async function stringToObjectId(id: string | ObjectId) {
     return id;
   }
 
-  if (typeof id === "string" && id.length === 24) {
+  if (typeof id === 'string' && id.length === 24) {
     return new ObjectId(id);
   }
 
@@ -78,7 +78,7 @@ export function stringToObjectIdSync(id: string | ObjectId) {
     return id;
   }
 
-  if (typeof id === "string" && id.length === 24) {
+  if (typeof id === 'string' && id.length === 24) {
     return new ObjectId(id);
   }
 
@@ -93,7 +93,7 @@ export async function stringToObjectIdForce(id: any) {
     return id;
   }
 
-  if (typeof id === "string" && id.length === 24) {
+  if (typeof id === 'string' && id.length === 24) {
     return new ObjectId(id);
   }
 
@@ -108,11 +108,11 @@ export function stringToObjectIdSyncForce(id: any) {
     return id;
   }
 
-  if (typeof id === "string" && id.length === 24) {
+  if (typeof id === 'string' && id.length === 24) {
     return new ObjectId(id);
   }
 
   return new ObjectId();
 }
 
-export const mongoDbName = process.env.MONGO_DB_NAME || "";
+export const mongoDbName = process.env.MONGO_DB_NAME || '';

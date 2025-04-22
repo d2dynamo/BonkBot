@@ -1,12 +1,13 @@
-import LoadDebt from "./debt/loadDebt";
-import AddDebt from "./debt/addDebt";
-import SetDebt from "./debt/setDebt";
-import RemoveDebt from "./debt/removeDebt";
-import ListGamerWords from "./gamerWord/listGamerWords";
-import SetUserPermission from "./permissions/setUserPermission";
-import SubscribeGamerWord from "./gamerWord/subscribeGamerWord";
-import ListSubscribedGamerWords from "./gamerWord/listSubscribed";
-import SaveGamerWordConfig from "./gamerWord/saveGamerWordConfig";
+import LoadDebt from './debt/loadDebt';
+import AddDebt from './debt/addDebt';
+import SetDebt from './debt/setDebt';
+import RemoveDebt from './debt/removeDebt';
+import ListGamerWords from './gamerWord/listGamerWords';
+import SetUserPermission from './permissions/setUserPermission';
+import SubscribeGamerWord from './gamerWord/subscribeGamerWord';
+import ListSubscribedGamerWords from './gamerWord/listSubscribed';
+import SaveGamerWordConfig from './gamerWord/saveGamerWordConfig';
+import DebtLeaderboard from './debt/leaderboard';
 
 export {
   LoadDebt,
@@ -18,6 +19,7 @@ export {
   SubscribeGamerWord,
   ListSubscribedGamerWords,
   SaveGamerWordConfig,
+  DebtLeaderboard,
 };
 
 /**
@@ -33,4 +35,5 @@ export default [
   SubscribeGamerWord,
   ListSubscribedGamerWords,
   SaveGamerWordConfig,
+  DebtLeaderboard,
 ];

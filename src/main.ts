@@ -1,35 +1,29 @@
-import {
-  Client,
-  Events,
-  GatewayIntentBits,
-  Guild,
-  OAuth2Guild,
-} from "discord.js";
-import "dotenv/config";
+import { Client, Events, GatewayIntentBits } from 'discord.js';
+import 'dotenv/config';
 
-import EventHandler from "./handlers";
-import { registerGuildCommands } from "./modules/registerCommands";
-import Commands from "./commands";
-import registerUsers from "./modules/users/register";
+import EventHandler from './handlers';
+import { registerGuildCommands } from './modules/registerCommands';
+
+import registerUsers from './modules/users/register';
 import connectCollection, {
   stringToObjectIdSyncForce,
-} from "./modules/database/mongo";
-import registerGuild from "./modules/guild/register";
-import { listGuildGamerWords } from "./modules/gamerWord/list";
-import { PermissionsEnum } from "./modules/permissions/permissions";
-import { changeUserPermissions } from "./modules/users/update";
+} from './modules/database/mongo';
+import registerGuild from './modules/guild/register';
+import { listGuildGamerWords } from './modules/gamerWord/list';
+import { PermissionsEnum } from './modules/permissions/permissions';
+import { changeUserPermissions } from './modules/users/update';
 
 const onClientReady = async (client: Client) => {
-  console.log(">> Bot starting");
+  console.log('>> Bot starting');
 
   client.application?.commands.set([]);
 
   const guilds = await client.guilds.fetch();
 
-  console.log(">> Handling guilds", guilds.size);
+  console.log('>> Handling guilds', guilds.size);
 
   guilds.forEach(async (guild) => {
-    console.log(">> Guild", guild.name, guild.id);
+    console.log('>> Guild', guild.name, guild.id);
 
     const g = await guild.fetch();
 
@@ -42,7 +36,7 @@ const onClientReady = async (client: Client) => {
       active: true,
     });
 
-    console.log(">> Registering commands");
+    console.log('>> Registering commands');
 
     await registerGuildCommands(g.id);
 
@@ -53,7 +47,7 @@ const onClientReady = async (client: Client) => {
 };
 
 (async () => {
-  if (process.env.NODE_ENV == "development") {
+  if (process.env.NODE_ENV == 'development') {
     try {
       // const result = await changeUserPermissions("69420", [
       //   {
@@ -72,13 +66,13 @@ const onClientReady = async (client: Client) => {
   }
 
   try {
-    const mongo = await connectCollection("permissions");
+    const mongo = await connectCollection('permissions');
 
-    const tryFind = await mongo.findOne({ name: "basic" });
+    const tryFind = await mongo.findOne({ name: 'basic' });
 
     if (!tryFind) {
       throw Error(
-        "No basic permission found. Database might be not connected."
+        `No basic permission found. Database might be not connected. ${tryFind}`
       );
     }
 
@@ -92,7 +86,7 @@ const onClientReady = async (client: Client) => {
     });
 
     if (!process.env.DBOT_TOKEN) {
-      console.error(">> No token provided");
+      console.error('>> No token provided');
       return;
     }
 
@@ -104,7 +98,7 @@ const onClientReady = async (client: Client) => {
       try {
         EventHandler.messageCreate(message);
       } catch (err) {
-        console.error(">> MessageCreate error: ", err);
+        console.error('>> MessageCreate error: ', err);
       }
     });
 
@@ -120,14 +114,14 @@ const onClientReady = async (client: Client) => {
           return;
         }
       } catch (error) {
-        console.error(">> Interaction error: ", error);
+        console.error('>> Interaction error: ', error);
       }
 
-      console.error(">> Unhandled interaction: ", interaction);
+      console.error('>> Unhandled interaction: ', interaction);
     });
 
     client.login(process.env.DBOT_TOKEN);
   } catch (error) {
-    console.error(">> Main Func catch:", error);
+    console.error('>> Main Func catch:', error);
   }
 })();
