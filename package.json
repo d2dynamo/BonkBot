@@ -39,5 +39,11 @@
   "dependencies": {
     "discord.js": "^14.16.3",
     "mongodb": "^6.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
+      "esbuild@<=0.24.2": ">=0.25.0"
+    }
   }
 }

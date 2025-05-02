@@ -29,10 +29,6 @@ node ./dist bundle.js (dont forget to add your env variables)
 
 # TODO
 
-## Guild based config.
-
-Which means gamer words and wallets need guild binds.
-
 ## GamerWordCollections
 
 Select server gamer words based on collection ex: "Hate Speech" selects hate speech worsd for the server.
@@ -60,6 +56,7 @@ Cause fun
 - bd-set | sets debt in swear jar
 - bd-add | adds to debt in swear jar
 - bd-remove | remove debt from swear jar
+- bd-lb | debt leaderboard
 
 - subscribe-gamer-word | Subscribe guild to gamer word
 - list-gamer-words | List all available gamer words
