@@ -64,9 +64,9 @@ const execute: CommandExecute = async (
   );
 
   interaction.reply(
-    `Added debt for ${userOpt.user.username}. New balance: ${
-      change + userWallet.balance
-    }`
+    `Added debt for ${
+      userOpt.user.displayName || userOpt.user.username
+    }. New balance: ${change + userWallet.balance}`
   );
 };
 

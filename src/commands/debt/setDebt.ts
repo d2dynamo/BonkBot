@@ -3,40 +3,40 @@ import {
   CommandInteraction,
   SlashCommandNumberOption,
   SlashCommandUserOption,
-} from "discord.js";
+} from 'discord.js';
 
-import { PermissionsEnum } from "../../modules/permissions/permissions";
-import Command, { CommandExecute } from "../../modules/command";
-import { updateUserWallet } from "../../modules/debtWallet/update";
-import parseDiscordUID from "../../modules/discordUID";
-import { getUserWallet } from "../../modules/debtWallet/get";
-import { createWallet } from "../../modules/debtWallet/create";
+import { PermissionsEnum } from '../../modules/permissions/permissions';
+import Command, { CommandExecute } from '../../modules/command';
+import { updateUserWallet } from '../../modules/debtWallet/update';
+import parseDiscordUID from '../../modules/discordUID';
+import { getUserWallet } from '../../modules/debtWallet/get';
+import { createWallet } from '../../modules/debtWallet/create';
 
 const execute: CommandExecute = async (
   interaction: CommandInteraction,
   interactorDID: string,
   guildDID: string
 ) => {
-  const userOpt = interaction.options.get("user");
+  const userOpt = interaction.options.get('user');
   if (
     !userOpt ||
     userOpt.type !== ApplicationCommandOptionType.User ||
     !userOpt.user
   ) {
-    interaction.reply("No user specified.");
+    interaction.reply('No user specified.');
     return;
   }
 
   const userDID = parseDiscordUID(userOpt.user.id);
 
-  const amount = interaction.options.get("amount");
+  const amount = interaction.options.get('amount');
 
   if (
     !amount ||
     amount.type !== ApplicationCommandOptionType.Number ||
-    typeof amount.value !== "number"
+    typeof amount.value !== 'number'
   ) {
-    interaction.reply("Missing amount option. Or amount is not a number.");
+    interaction.reply('Missing amount option. Or amount is not a number.');
     return;
   }
 
@@ -44,14 +44,14 @@ const execute: CommandExecute = async (
     const userWallet = await getUserWallet(userDID, guildDID);
 
     if (!userWallet) {
-      throw new Error("Wallet not found");
+      throw new Error('Wallet not found');
     }
 
     const target = amount.value;
     const current = userWallet.balance;
 
-    if (typeof target !== "number") {
-      throw new Error("Amount must be a number");
+    if (typeof target !== 'number') {
+      throw new Error('Amount must be a number');
     }
 
     let change = target;
@@ -61,17 +61,17 @@ const execute: CommandExecute = async (
       change = current - target;
     }
 
-    const note = interaction.options.get("note", false);
+    const note = interaction.options.get('note', false);
 
     await updateUserWallet(
       userDID,
       guildDID,
       interactorDID,
       change,
-      typeof note?.value === "string" ? note.value : undefined
+      typeof note?.value === 'string' ? note.value : undefined
     );
   } catch (error: any) {
-    if (error.message === "Wallet not found") {
+    if (error.message === 'Wallet not found') {
       await createWallet(userDID, guildDID);
       await updateUserWallet(userDID, guildDID, interactorDID, amount.value);
     } else {
@@ -79,23 +79,27 @@ const execute: CommandExecute = async (
     }
   }
 
-  interaction.reply(`Set debt for ${userOpt.user.username} to ${amount.value}`);
+  interaction.reply(
+    `Set debt for ${userOpt.user.displayName || userOpt.user.username} to ${
+      amount.value
+    }`
+  );
 };
 
 const options = [
   new SlashCommandUserOption()
-    .setName("user")
-    .setDescription("The user to set debt for")
+    .setName('user')
+    .setDescription('The user to set debt for')
     .setRequired(true),
   new SlashCommandNumberOption()
-    .setName("amount")
-    .setDescription("The amount to set the debt to")
+    .setName('amount')
+    .setDescription('The amount to set the debt to')
     .setRequired(true),
 ];
 
 export default new Command({
-  name: "bd-set",
-  description: "Set debt for a user",
+  name: 'bd-set',
+  description: 'Set debt for a user',
   options,
   execute,
   requiredPermission: PermissionsEnum.banker,
