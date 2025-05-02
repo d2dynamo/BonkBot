@@ -1,8 +1,8 @@
-import { DiscordUID } from "../../interfaces/database";
-import { DebtWallet } from "./types";
-import connectCollection from "../database/mongo";
-import { getUser } from "../users/get";
-import getWalletTransactions from "./transactions";
+import { DiscordUID } from '../../interfaces/database';
+import { DebtWallet } from './types';
+import connectCollection from '../database/mongo';
+import { getUser } from '../users/get';
+import getWalletTransactions from './transactions';
 
 export async function getUserWallet(
   userDID: DiscordUID,
@@ -12,8 +12,7 @@ export async function getUserWallet(
   if (!user) {
     throw new Error(`User not found: ${userDID}|${guildDID}`);
   }
-
-  const coll = await connectCollection("bonkWallets");
+  const coll = await connectCollection('bonkWallets');
 
   const walletDoc = await coll.findOne({ userId: user._id });
 

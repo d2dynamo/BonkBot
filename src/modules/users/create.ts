@@ -1,21 +1,23 @@
-import { DiscordUID } from "../../interfaces/database";
-import parseDiscordUID from "../discordUID";
-import connectCollection from "../database/mongo";
+import { DiscordUID } from '../../interfaces/database';
+import parseDiscordUID from '../discordUID';
+import connectCollection from '../database/mongo';
 /**
  * Create or update a user.
  * @param DiscordUID - Discord UID.
  * @param guildDID - Guild ID.
  * @param userName - Discord handle without tag.
+ * @param displayName - Discord display name.
  */
 export default async function saveUser(
   DiscordUID: DiscordUID,
   guildDID: DiscordUID,
-  userName?: string
+  userName?: string,
+  displayName?: string
 ): Promise<true> {
   parseDiscordUID(DiscordUID);
   parseDiscordUID(guildDID);
 
-  const coll = await connectCollection("users");
+  const coll = await connectCollection('users');
 
   const result = await coll.updateOne(
     { discordId: DiscordUID, guildDID: guildDID },
@@ -24,6 +26,7 @@ export default async function saveUser(
         discordId: DiscordUID,
         guildDID: guildDID,
         userName: userName,
+        displayName: displayName,
         updatedAt: new Date(),
       },
       $setOnInsert: {
@@ -34,7 +37,7 @@ export default async function saveUser(
   );
 
   if (!result.upsertedId && !result.modifiedCount) {
-    throw new Error("Failed to create or update user");
+    throw new Error('Failed to create or update user');
   }
 
   return true;

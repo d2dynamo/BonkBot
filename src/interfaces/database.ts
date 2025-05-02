@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 
 /** DiscordUID is a bigint/long number stored as string. */
 export type DiscordUID = string;
@@ -34,6 +34,7 @@ export interface User extends DefaultDocument {
   guildDID: DiscordUID;
   guildId: ObjectId;
   userName?: string;
+  displayName?: string;
 }
 
 /** Only embeded doc in UserPermission. UserPermissions.permissions */

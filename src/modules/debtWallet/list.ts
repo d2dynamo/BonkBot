@@ -28,23 +28,27 @@ export async function listDebts(
     throw new Error('Could not connect to users collection');
   }
 
-  console.log('>> Listing debts for guild', filter.guildDID);
-
   const cursor = coll.aggregate([
     {
       $match: {
-        guildId: filter.guildDID,
+        guildDID: filter.guildDID,
       },
     },
     {
-      $project: { _id: 1, userDID: '$discordId', userName: 1 },
+      $project: { _id: 1, userDID: '$discordId', userName: 1, displayName: 1 },
     },
     {
       $lookup: {
         from: 'bonkWallets',
-        localField: '_id',
-        foreignField: 'userId',
+        let: { userObjId: '$_id' },
         pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$userId', '$$userObjId'],
+              },
+            },
+          },
           {
             $project: {
               _id: 1,
@@ -60,10 +64,13 @@ export async function listDebts(
     {
       $lookup: {
         from: 'bonkWalletTransactions',
+        let: { walletObjId: '$wallet._id' },
         pipeline: [
           {
             $match: {
-              walletId: '$wallet._id',
+              $expr: {
+                $eq: ['$walletId', '$$walletObjId'],
+              },
             },
           },
           {
@@ -73,6 +80,13 @@ export async function listDebts(
           },
           {
             $limit: 1,
+          },
+          {
+            $project: {
+              _id: 0,
+              balance: 1,
+              createdAt: 1,
+            },
           },
         ],
         as: 'lastTransaction',
@@ -88,6 +102,7 @@ export async function listDebts(
       $project: {
         userDID: '$discordId',
         userName: 1,
+        displayName: 1,
         balance: {
           $ifNull: ['$lastTransaction.balance', 0],
         },
@@ -103,7 +118,7 @@ export async function listDebts(
 
     const entry: DebtListEntry = {
       userDID: doc.userDID || 'unknown',
-      userName: doc.userName || 'unknown',
+      userName: doc.displayName || doc.userName || 'unknown',
       balance: doc.balance || 0,
     };
 

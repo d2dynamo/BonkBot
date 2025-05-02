@@ -4,63 +4,63 @@ import {
   SlashCommandNumberOption,
   SlashCommandStringOption,
   ApplicationCommandOptionType,
-} from "discord.js";
+} from 'discord.js';
 
-import { getUserWallet } from "../../modules/debtWallet/get";
-import { updateUserWallet } from "../../modules/debtWallet/update";
-import Command, { CommandExecute } from "../../modules/command";
-import { PermissionsEnum } from "../../modules/permissions/permissions";
-import parseDiscordUID from "../../modules/discordUID";
+import { getUserWallet } from '../../modules/debtWallet/get';
+import { updateUserWallet } from '../../modules/debtWallet/update';
+import Command, { CommandExecute } from '../../modules/command';
+import { PermissionsEnum } from '../../modules/permissions/permissions';
+import parseDiscordUID from '../../modules/discordUID';
 
 const execute: CommandExecute = async (
   interaction: CommandInteraction,
   interactorDID: string,
   guildDID: string
 ) => {
-  const userOpt = interaction.options.get("user");
+  const userOpt = interaction.options.get('user');
   if (
     !userOpt ||
     userOpt.type !== ApplicationCommandOptionType.User ||
     !userOpt.user
   ) {
-    interaction.reply("No user specified.");
+    interaction.reply('No user specified.');
     return;
   }
 
   const userDID = parseDiscordUID(userOpt.user.id);
 
-  const amount = interaction.options.get("amount");
+  const amount = interaction.options.get('amount');
 
   if (
     !amount ||
     amount.type !== ApplicationCommandOptionType.Number ||
-    typeof amount.value !== "number"
+    typeof amount.value !== 'number'
   ) {
-    interaction.reply("Missing amount option. Or amount is not a number.");
+    interaction.reply('Missing amount option. Or amount is not a number.');
     return;
   }
 
   const userWallet = await getUserWallet(userDID, guildDID);
 
   if (!userWallet) {
-    interaction.reply("User wallet not found.");
+    interaction.reply('User wallet not found.');
     throw Error(`User wallet not found. ${userDID} ${guildDID}`);
   }
 
   let change = amount.value;
 
-  if (typeof change !== "number" || change < 0) {
-    throw new Error("Amount must be a positive number");
+  if (typeof change !== 'number' || change < 0) {
+    throw new Error('Amount must be a positive number');
   }
 
-  const note = interaction.options.get("note", false);
+  const note = interaction.options.get('note', false);
 
   await updateUserWallet(
     userDID,
     guildDID,
     interactorDID,
     change,
-    typeof note?.value === "string" ? note.value : undefined
+    typeof note?.value === 'string' ? note.value : undefined
   );
 
   interaction.reply(
@@ -72,22 +72,22 @@ const execute: CommandExecute = async (
 
 const options = [
   new SlashCommandUserOption()
-    .setName("user")
-    .setDescription("The user to add debt to")
+    .setName('user')
+    .setDescription('The user to add debt to')
     .setRequired(true),
   new SlashCommandNumberOption()
-    .setName("amount")
-    .setDescription("The amount to add to the debt")
+    .setName('amount')
+    .setDescription('The amount to add to the debt')
     .setRequired(true),
   new SlashCommandStringOption()
-    .setName("note")
-    .setDescription("A note to add to the transaction")
+    .setName('note')
+    .setDescription('A note to add to the transaction')
     .setRequired(false),
 ];
 
 export default new Command({
-  name: "bd-add",
-  description: "Add debt for a user",
+  name: 'bd-add',
+  description: 'Add debt for a user',
   options,
   execute,
   requiredPermission: PermissionsEnum.basic,
